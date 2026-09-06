@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>banana资源库</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                 "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6f8;
+    color: #222;
+}
+
+.header {
+    padding: 32px 20px 24px;
+    background: white;
+    text-align: center;
+}
+
+.header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+}
+
+.header p {
+    margin: 0;
+    color: #777;
+    font-size: 14px;
+}
+
+.search-box {
+    padding: 18px 16px;
+    background: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.search {
+    width: 100%;
+    height: 48px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    padding: 0 16px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search:focus {
+    border-color: #777;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    padding: 16px;
+}
+
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+}
+
+.card h2 {
+    margin: 0 0 8px;
+    font-size: 19px;
+}
+
+.description {
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.buttons a {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    padding: 12px 8px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.baidu {
+    background: #f1f1f1;
+    color: #222;
+}
+
+.quark {
+    background: #222;
+    color: white;
+}
+
+.empty {
+    text-align: center;
+    color: #999;
+    padding: 50px 20px;
+}
+
+.footer {
+    text-align: center;
+    color: #aaa;
+    font-size: 12px;
+    padding: 30px 15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🍌 banana资源库</h1>
+    <p>搜索你需要的资源</p>
+</div>
+
+<div class="search-box">
+    <input
+        id="search"
+        class="search"
+        type="search"
+        placeholder="🔍 搜索资源名称..."
+    >
+</div>
+
+<div class="container" id="list"></div>
+
+<div class="footer">
+    banana资源库
+</div>
+
+<script>
+
+const resources = [
+
+    {
+        name: "示例资源",
+        description: "这是一个示例资源，你可以替换成自己的资源。",
+        baidu: "https://pan.baidu.com/",
+        quark: "https://pan.quark.cn/"
+    },
+
+    {
+        name: "示例电影",
+        description: "1080P · 中文字幕",
+        baidu: "https://pan.baidu.com/",
+        quark: "https://pan.quark.cn/"
+    }
+
+];
+
+
+const list = document.getElementById("list");
+const search = document.getElementById("search");
+
+
+function showResources(keyword = "") {
+
+    const result = resources.filter(item =>
+        item.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+
+    list.innerHTML = "";
+
+    if (result.length === 0) {
+        list.innerHTML = `
+            <div class="empty">
+                没有找到相关资源
+            </div>
+        `;
+        return;
+    }
+
+    result.forEach(item => {
+
+        const card = document.createElement("div");
+
+        card.className = "card";
+
+        card.innerHTML = `
+            <h2>📦 ${item.name}</h2>
+
+            <div class="description">
+                ${item.description}
+            </div>
+
+            <div class="buttons">
+
+                <a class="baidu"
+                   href="${item.baidu}"
+                   target="_blank">
+                    百度网盘
+                </a>
+
+                <a class="quark"
+                   href="${item.quark}"
+                   target="_blank">
+                    夸克网盘
+                </a>
+
+            </div>
+        `;
+
+        list.appendChild(card);
+    });
+}
+
+
+search.addEventListener("input", () => {
+    showResources(search.value);
+});
+
+
+showResources();
+
+</script>
+
+</body>
+</html>
