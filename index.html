@@ -1,234 +1,226 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>banana资源库</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    <title>banana资源库</title>
 
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                 "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: #f5f6f8;
-    color: #222;
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-.header {
-    padding: 32px 20px 24px;
-    background: white;
-    text-align: center;
-}
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f6f8;
+            color: #222;
+        }
 
-.header h1 {
-    margin: 0 0 8px;
-    font-size: 28px;
-}
+        .header {
+            background: linear-gradient(135deg, #111827, #374151);
+            color: white;
+            padding: 35px 20px 30px;
+            text-align: center;
+        }
 
-.header p {
-    margin: 0;
-    color: #777;
-    font-size: 14px;
-}
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
 
-.search-box {
-    padding: 18px 16px;
-    background: white;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
+        .header p {
+            margin: 10px 0 0;
+            color: #d1d5db;
+            font-size: 14px;
+        }
 
-.search {
-    width: 100%;
-    height: 48px;
-    border: 1px solid #ddd;
-    border-radius: 14px;
-    padding: 0 16px;
-    font-size: 16px;
-    outline: none;
-}
+        .container {
+            max-width: 700px;
+            margin: auto;
+            padding: 20px 15px 50px;
+        }
 
-.search:focus {
-    border-color: #777;
-}
+        .search-box {
+            position: sticky;
+            top: 10px;
+            z-index: 10;
+            margin-bottom: 20px;
+        }
 
-.container {
-    max-width: 700px;
-    margin: auto;
-    padding: 16px;
-}
+        .search-box input {
+            width: 100%;
+            padding: 15px 18px;
+            border: none;
+            border-radius: 14px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            font-size: 16px;
+            outline: none;
+        }
 
-.card {
-    background: white;
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 14px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.05);
-}
+        .resource {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
 
-.card h2 {
-    margin: 0 0 8px;
-    font-size: 19px;
-}
+        .resource-name {
+            font-size: 19px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
 
-.description {
-    color: #777;
-    font-size: 14px;
-    margin-bottom: 16px;
-}
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-.buttons {
-    display: flex;
-    gap: 10px;
-}
+        .button {
+            display: inline-block;
+            text-decoration: none;
+            padding: 11px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
 
-.buttons a {
-    flex: 1;
-    text-align: center;
-    text-decoration: none;
-    padding: 12px 8px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-}
+        .baidu {
+            background: #1677ff;
+        }
 
-.baidu {
-    background: #f1f1f1;
-    color: #222;
-}
+        .quark {
+            background: #18a957;
+        }
 
-.quark {
-    background: #222;
-    color: white;
-}
+        .empty {
+            text-align: center;
+            color: #888;
+            padding: 30px 10px;
+            display: none;
+        }
 
-.empty {
-    text-align: center;
-    color: #999;
-    padding: 50px 20px;
-}
-
-.footer {
-    text-align: center;
-    color: #aaa;
-    font-size: 12px;
-    padding: 30px 15px;
-}
-</style>
+        .footer {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 30px;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="header">
-    <h1>🍌 banana资源库</h1>
-    <p>搜索你需要的资源</p>
-</div>
+    <div class="header">
+        <h1>🍌 banana资源库</h1>
+        <p>搜索你需要的资源</p>
+    </div>
 
-<div class="search-box">
-    <input
-        id="search"
-        class="search"
-        type="search"
-        placeholder="🔍 搜索资源名称..."
-    >
-</div>
+    <div class="container">
 
-<div class="container" id="list"></div>
+        <div class="search-box">
+            <input
+                type="text"
+                id="search"
+                placeholder="🔎 搜索资源名称..."
+                autocomplete="off"
+            >
+        </div>
 
-<div class="footer">
-    banana资源库
-</div>
+        <div id="resourceList">
 
-<script>
+            <!-- 早春晴朗 -->
+            <div class="resource" data-name="早春晴朗">
+                <div class="resource-name">
+                    🎬 早春晴朗
+                </div>
 
-const resources = [
-
-    {
-        name: "示例资源",
-        description: "这是一个示例资源，你可以替换成自己的资源。",
-        baidu: "https://pan.baidu.com/",
-        quark: "https://pan.quark.cn/"
-    },
-
-    {
-        name: "示例电影",
-        description: "1080P · 中文字幕",
-        baidu: "https://pan.baidu.com/",
-        quark: "https://pan.quark.cn/"
-    }
-
-];
-
-
-const list = document.getElementById("list");
-const search = document.getElementById("search");
-
-
-function showResources(keyword = "") {
-
-    const result = resources.filter(item =>
-        item.name.toLowerCase().includes(keyword.toLowerCase())
-    );
-
-    list.innerHTML = "";
-
-    if (result.length === 0) {
-        list.innerHTML = `
-            <div class="empty">
-                没有找到相关资源
-            </div>
-        `;
-        return;
-    }
-
-    result.forEach(item => {
-
-        const card = document.createElement("div");
-
-        card.className = "card";
-
-        card.innerHTML = `
-            <h2>📦 ${item.name}</h2>
-
-            <div class="description">
-                ${item.description}
+                <div class="buttons">
+                    <a
+                        class="button baidu"
+                        href="https://pan.baidu.com/s/15qUAK4rJPMK2HzWWS2wn9Q?pwd=N149"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        🔵 百度网盘
+                    </a>
+                </div>
             </div>
 
-            <div class="buttons">
+            <!-- 纸鸢 -->
+            <div class="resource" data-name="纸鸢">
+                <div class="resource-name">
+                    🎬 纸鸢
+                </div>
 
-                <a class="baidu"
-                   href="${item.baidu}"
-                   target="_blank">
-                    百度网盘
-                </a>
-
-                <a class="quark"
-                   href="${item.quark}"
-                   target="_blank">
-                    夸克网盘
-                </a>
-
+                <div class="buttons">
+                    <a
+                        class="button baidu"
+                        href="https://pan.baidu.com/s/1946thTCaXfjDdVBw3epfNw?pwd=P4yL"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        🔵 百度网盘
+                    </a>
+                </div>
             </div>
-        `;
 
-        list.appendChild(card);
-    });
-}
+        </div>
 
+        <div id="empty" class="empty">
+            没有找到相关资源 😢
+        </div>
 
-search.addEventListener("input", () => {
-    showResources(search.value);
-});
+        <div class="footer">
+            banana资源库<br>
+            请确保你分享的资源具有合法的分享权限
+        </div>
 
+    </div>
 
-showResources();
+    <script>
+        const searchInput = document.getElementById("search");
+        const resources = document.querySelectorAll(".resource");
+        const empty = document.getElementById("empty");
 
-</script>
+        searchInput.addEventListener("input", function () {
+
+            const keyword = this.value
+                .trim()
+                .toLowerCase();
+
+            let found = 0;
+
+            resources.forEach(function (resource) {
+
+                const name = resource
+                    .getAttribute("data-name")
+                    .toLowerCase();
+
+                if (name.includes(keyword)) {
+                    resource.style.display = "block";
+                    found++;
+                } else {
+                    resource.style.display = "none";
+                }
+
+            });
+
+            if (found === 0) {
+                empty.style.display = "block";
+            } else {
+                empty.style.display = "none";
+            }
+
+        });
+    </script>
 
 </body>
 </html>
