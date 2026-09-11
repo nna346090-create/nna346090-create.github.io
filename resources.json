@@ -1,16 +1,7 @@
-{
-  "updatedAt": "2026-09-11T15:39:52.857274+00:00",
-  "source": "baidu",
-  "folder": "/banana资源",
-  "resources": [
-    {
-      "name": "B-本座的灵宠要上天【完】",
-      "path": "/banana资源/B-本座的灵宠要上天【完】",
-      "isDir": true,
-      "size": 0,
-      "fsId": 586232984560647,
-      "md5": "",
-      "mtime": 1788684224
-    }
-  ]
-}
+[
+  {
+    "name": "测试资源",
+    "baidu": "",
+    "quark": ""
+  }
+]
