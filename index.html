@@ -1,483 +1,305 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>banana资源库</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🍌 banana资源库</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                         "PingFang SC", "Microsoft YaHei", sans-serif;
-            background: #f5f6f8;
-            color: #222;
-        }
+    body {
+      margin: 0;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "PingFang SC",
+        "Microsoft YaHei",
+        sans-serif;
+      background: #f5f6f8;
+      color: #222;
+    }
 
-        .header {
-            background: linear-gradient(135deg, #111827, #374151);
-            color: white;
-            padding: 35px 20px 30px;
-            text-align: center;
-        }
+    .container {
+      width: min(900px, 92%);
+      margin: 0 auto;
+      padding: 35px 0 50px;
+    }
 
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-        }
+    h1 {
+      text-align: center;
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
 
-        .header p {
-            margin: 10px 0 0;
-            color: #d1d5db;
-            font-size: 14px;
-        }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
 
-        .container {
-            max-width: 700px;
-            margin: auto;
-            padding: 20px 15px 50px;
-        }
+    .search-box {
+      position: sticky;
+      top: 10px;
+      z-index: 10;
+      margin-bottom: 25px;
+    }
 
-        .search-box {
-            position: sticky;
-            top: 10px;
-            z-index: 10;
-            margin-bottom: 20px;
-        }
+    #searchInput {
+      width: 100%;
+      padding: 15px 18px;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      font-size: 16px;
+      outline: none;
+      background: white;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+    }
 
-        .search-box input {
-            width: 100%;
-            padding: 15px 18px;
-            border: none;
-            border-radius: 14px;
-            background: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            font-size: 16px;
-            outline: none;
-        }
+    #searchInput:focus {
+      border-color: #999;
+    }
 
-        .resource {
-            background: white;
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 15px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-        }
+    #resourceList {
+      display: grid;
+      gap: 14px;
+    }
 
-        .resource-name {
-            font-size: 18px;
-            font-weight: 600;
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
+    .resource {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+    }
 
-        .buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .resource-name {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 13px;
+      word-break: break-word;
+    }
 
-        .button {
-            display: inline-block;
-            text-decoration: none;
-            padding: 11px 16px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            color: white;
-        }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
 
-        .baidu {
-            background: #1677ff;
-        }
+    .btn {
+      display: inline-block;
+      padding: 9px 14px;
+      border-radius: 9px;
+      text-decoration: none;
+      font-size: 14px;
+      color: white;
+      background: #333;
+    }
 
-        .quark {
-            background: #18a957;
-        }
+    .btn:active {
+      opacity: 0.7;
+    }
 
-        .xunlei {
-            background: #7c3aed;
-        }
+    .empty {
+      text-align: center;
+      color: #999;
+      padding: 40px 10px;
+      display: none;
+    }
 
-        .empty {
-            text-align: center;
-            color: #888;
-            padding: 30px 10px;
-            display: none;
-        }
+    .loading {
+      text-align: center;
+      color: #999;
+      padding: 30px;
+    }
 
-        .footer {
-            text-align: center;
-            color: #999;
-            font-size: 12px;
-            margin-top: 30px;
-            line-height: 1.6;
-        }
-    </style>
+    footer {
+      text-align: center;
+      color: #aaa;
+      font-size: 12px;
+      margin-top: 40px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 94%;
+        padding-top: 25px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .resource {
+        padding: 16px;
+      }
+
+      .btn {
+        flex: 1;
+        text-align: center;
+        min-width: 120px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <h1>🍌 banana资源库</h1>
-        <p>搜索你需要的资源</p>
+  <div class="container">
+
+    <h1>🍌 banana资源库</h1>
+
+    <div class="subtitle">
+      搜索资源名称，点击即可打开分享链接
     </div>
 
-    <div class="container">
-
-        <div class="search-box">
-            <input
-                type="text"
-                id="search"
-                placeholder="🔎 搜索资源名称..."
-                autocomplete="off"
-            >
-        </div>
-
-        <div id="resourceList">
-
-            <!-- 原有资源 -->
-
-            <div class="resource" data-name="早春晴朗">
-                <div class="resource-name">🎬 早春晴朗</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/15qUAK4rJPMK2HzWWS2wn9Q?pwd=N149"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="纸鸢">
-                <div class="resource-name">🎬 纸鸢</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1946thTCaXfjDdVBw3epfNw?pwd=P4yL"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="The Other Self二季全+番外">
-                <div class="resource-name">🔥 The Other Self二季全+番外</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1l-4xU77KqSaPkHNJzwr7Wg?pwd=Z2ao"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="高考零分作文精选大全">
-                <div class="resource-name">📚 《高考零分作文精选大全》</div>
-                <div class="buttons">
-                    <a class="button quark"
-                       href="https://pan.quark.cn/s/14c96aba32b2"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🟢 夸克网盘
-                    </a>
-
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1YRgnf1KU3-UKRuyimdHZmg?pwd=GM16"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="BL作者冻感超人合集补番全">
-                <div class="resource-name">📚 BL作者冻感超人合集，补番全</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/110CinTSLfIAaH1JX4U0UjQ?pwd=VLS6"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="绝色少爷与纯情暗卫">
-                <div class="resource-name">📺 🔥 绝色少爷与纯情暗卫</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1MvOI-IJvSIuW3y2H6L31Yg?pwd=2dMW"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="BG作者姑娘别哭小说合集">
-                <div class="resource-name">📚 BG作者姑娘别哭小说合集</div>
-                <div class="buttons">
-                    <a class="button quark"
-                       href="https://pan.quark.cn/s/290ccfe8fc36"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🟢 夸克网盘
-                    </a>
-                </div>
-            </div>
-
-
-            <!-- 本次新增资源 -->
-
-            <div class="resource" data-name="8月最新完结po文">
-                <div class="resource-name">🥩📚 8月最新完结po文</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/184Y2kZKWRSwbfBIdsGjaXQ?pwd=fFr9"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="BG类型文娇弱女主女嬷合集">
-                <div class="resource-name">📚 BG类型文：娇弱女主/女嬷合集</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1A0qaTu7hAtxpHPsjbE2kBA?pwd=fmBx"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="BL海棠废文扫文推书">
-                <div class="resource-name">🥩📚 BL海棠废文扫文推书</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1VQhNFU3lsvvpgSVxDPK22Q?pwd=7534"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="BL类型文弱受嬷受海棠文合集">
-                <div class="resource-name">🥩📚 BL类型文：弱受/嬷受海棠文合集</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1XgRs4jYwjaJrVAY3PtsuMg?pwd=26q1"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="10个海棠作者小说合集">
-                <div class="resource-name">🥩📚 10个海棠作者小说合集</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1WMztVRDBKDqdejwtyUJyyQ?pwd=CGBa"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="男频推荐小说">
-                <div class="resource-name">🔥📚 男频推荐小说</div>
-                <div class="buttons">
-                    <a class="button quark"
-                       href="https://pan.quark.cn/s/3db2099819b4"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🟢 夸克网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="抖音故事会300本">
-                <div class="resource-name">📚 抖音故事会300本+</div>
-                <div class="buttons">
-                    <a class="button quark"
-                       href="https://pan.quark.cn/s/9fc141f3560c"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🟢 夸克网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="三千年等一口将军气">
-                <div class="resource-name">📺 《三千年等一口将军气》BL AI漫剧 更新54集</div>
-                <div class="buttons">
-                    <a class="button xunlei"
-                       href="https://pan.xunlei.com/s/VP0lh4wwghVc0v-JplO27Wr8A1?pwd=46n7"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🟣 迅雷网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="属二sure">
-                <div class="resource-name">📺「属二sure」更新26-27集 双男主 BL AI漫剧</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1H-Z7Add80WMZIZao-9g4bQ?pwd=8oj6"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-
-                    <a class="button xunlei"
-                       href="https://pan.xunlei.com/s/VP0lhH5gghVc0v-JplO27hfIA1?pwd=na78"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🟣 迅雷网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="po文类型文合集3p">
-                <div class="resource-name">🥩📚 po文类型文合集3p</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1gqdZeBDS_TKQDnBiRPY3HA?pwd=a9s5"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="骚受广播剧合集">
-                <div class="resource-name">🎧 骚受-广播剧合集</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1MeAETBKeLZxNRy7lnPTLQw?pwd=Lj74"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="Z早春晴朗广播剧">
-                <div class="resource-name">🎧 Z-早春晴朗 · 广播剧</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1E7iCdJ2h1f1eaUzQl_P_Hw?pwd=89di"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="早春晴朗剧118集">
-                <div class="resource-name">📺 早春晴朗剧 1-18集</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/16sA5Zr-MXpnZ_goi-oc84w?pwd=6Nin"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="The Other Self二季全">
-                <div class="resource-name">📺 The Other Self 二季全</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1KwPhoQhqz4APd7zqFMjHxg?pwd=HdH8"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-            <div class="resource" data-name="365天3部曲">
-                <div class="resource-name">📺 365天3部曲</div>
-                <div class="buttons">
-                    <a class="button baidu"
-                       href="https://pan.baidu.com/s/1Ff5-fwpSubaryk8WEVdYcw?pwd=VdAd"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        🔵 百度网盘
-                    </a>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="empty" class="empty">
-            没有找到相关资源 😢
-        </div>
-
-        <div class="footer">
-            banana资源库<br>
-            请确保你分享的资源具有合法的分享权限
-        </div>
-
+    <div class="search-box">
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="🔍 搜索资源名称..."
+        autocomplete="off"
+      >
     </div>
 
+    <div id="resourceList">
+      <div class="loading" id="loading">
+        正在加载资源……
+      </div>
+    </div>
 
-    <script>
-        const searchInput = document.getElementById("search");
-        const resources = document.querySelectorAll(".resource");
-        const empty = document.getElementById("empty");
+    <div class="empty" id="empty">
+      没有找到相关资源
+    </div>
 
-        searchInput.addEventListener("input", function () {
+    <footer>
+      🍌 banana资源库<br>
+      请确保你分享的资源具有合法的分享权限
+    </footer>
 
-            const keyword = this.value.trim().toLowerCase();
+  </div>
 
-            let found = 0;
+  <script>
+    const resourceList = document.getElementById("resourceList");
+    const searchInput = document.getElementById("searchInput");
+    const empty = document.getElementById("empty");
+    const loading = document.getElementById("loading");
 
-            resources.forEach(function (resource) {
+    let resources = [];
 
-                const name =
-                    resource.getAttribute("data-name").toLowerCase();
+    function createResourceCard(item) {
+      const card = document.createElement("div");
+      card.className = "resource";
 
-                if (name.includes(keyword)) {
+      const name = document.createElement("div");
+      name.className = "resource-name";
 
-                    resource.style.display = "block";
-                    found++;
+      name.textContent = "📁 " + (item.name || "未命名资源");
 
-                } else {
+      const buttons = document.createElement("div");
+      buttons.className = "buttons";
 
-                    resource.style.display = "none";
+      if (item.baidu) {
+        const baiduBtn = document.createElement("a");
 
-                }
+        baiduBtn.className = "btn";
+        baiduBtn.textContent = "打开百度网盘文件夹";
+        baiduBtn.href = item.baidu;
+        baiduBtn.target = "_blank";
+        baiduBtn.rel = "noopener noreferrer";
 
-            });
+        buttons.appendChild(baiduBtn);
+      }
 
-            if (found === 0) {
+      card.appendChild(name);
+      card.appendChild(buttons);
 
-                empty.style.display = "block";
+      return card;
+    }
 
-            } else {
+    function renderResources(list) {
+      resourceList.innerHTML = "";
 
-                empty.style.display = "none";
+      if (list.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
 
-            }
+      empty.style.display = "none";
 
-        });
-    </script>
+      list.forEach(item => {
+        resourceList.appendChild(
+          createResourceCard(item)
+        );
+      });
+    }
+
+    async function loadResources() {
+      try {
+        const response = await fetch(
+          "./resources.json?t=" + Date.now(),
+          {
+            cache: "no-store"
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("resources.json 加载失败");
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          resources = data;
+        } else if (Array.isArray(data.resources)) {
+          resources = data.resources;
+        } else {
+          resources = [];
+        }
+
+        resources = resources.filter(item =>
+          item &&
+          item.name &&
+          item.baidu
+        );
+
+        loading.remove();
+
+        renderResources(resources);
+
+      } catch (error) {
+        console.error(error);
+
+        loading.textContent =
+          "资源加载失败，请稍后刷新页面";
+
+        resources = [];
+      }
+    }
+
+    searchInput.addEventListener("input", function () {
+      const keyword = this.value.trim().toLowerCase();
+
+      if (!keyword) {
+        renderResources(resources);
+        return;
+      }
+
+      const filtered = resources.filter(item =>
+        String(item.name || "")
+          .toLowerCase()
+          .includes(keyword)
+      );
+
+      renderResources(filtered);
+    });
+
+    loadResources();
+  </script>
 
 </body>
 </html>
