@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -32,242 +32,318 @@ jobs:
           BAIDU_AUTH_CODE: ${{ secrets.BAIDU_AUTH_CODE }}
           BAIDU_REFRESH_TOKEN: ${{ secrets.BAIDU_REFRESH_TOKEN }}
           GH_SECRETS_PAT: ${{ secrets.GH_SECRETS_PAT }}
-          GH_REPO: ${{ github.repository }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
         run: |
           python <<'PY'
           import os
           import json
-          import time
           import base64
           import requests
-          from nacl import encoding, public
+          from datetime import datetime, timezone
+          from nacl.public import PublicKey, SealedBox
 
           APP_KEY = os.environ["BAIDU_APP_KEY"]
           SECRET_KEY = os.environ["BAIDU_SECRET_KEY"]
-          AUTH_CODE = os.environ.get("BAIDU_AUTH_CODE", "").strip()
-          REFRESH_TOKEN = os.environ.get("BAIDU_REFRESH_TOKEN", "").strip()
-          GH_PAT = os.environ.get("GH_SECRETS_PAT", "").strip()
-          GH_REPO = os.environ["GH_REPO"]
+          AUTH_CODE = os.environ.get("BAIDU_AUTH_CODE", "")
+          REFRESH_TOKEN = os.environ.get("BAIDU_REFRESH_TOKEN", "")
+          GH_PAT = os.environ["GH_SECRETS_PAT"]
+          REPO = os.environ["GITHUB_REPOSITORY"]
 
-          BAIDU_FOLDER = "/banana资源"
-          OUTPUT_FILE = "baidu_folders.json"
+          TOKEN_URL = "https://openapi.baidu.com/oauth/2.0/token"
 
-          def get_access_token():
-              # 优先使用已经保存的 refresh token
-              if REFRESH_TOKEN:
-                  print("Using saved refresh token...")
+          # ============================================================
+          # 保存 Refresh Token 到 GitHub Secrets
+          # ============================================================
 
-                  url = "https://openapi.baidu.com/oauth/2.0/token"
+          def save_refresh_token(token):
+              if not token:
+                  return
 
-                  params = {
-                      "grant_type": "refresh_token",
-                      "refresh_token": REFRESH_TOKEN,
-                      "client_id": APP_KEY,
-                      "client_secret": SECRET_KEY
-                  }
+              public_key_url = (
+                  f"https://api.github.com/repos/{REPO}/actions/secrets/public-key"
+              )
 
-                  r = requests.get(url, params=params, timeout=30)
-                  data = r.json()
+              headers = {
+                  "Authorization": f"Bearer {GH_PAT}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+              }
 
-                  if data.get("access_token"):
-                      print("Refresh token succeeded.")
-                      return data
+              r = requests.get(
+                  public_key_url,
+                  headers=headers,
+                  timeout=30
+              )
+              r.raise_for_status()
 
-                  print("Refresh token failed:")
-                  print(data)
+              key_data = r.json()
 
-              # 第一次授权时使用 auth code
-              if not AUTH_CODE:
+              public_key = PublicKey(
+                  base64.b64decode(key_data["key"])
+              )
+
+              encrypted = SealedBox(public_key).encrypt(
+                  token.encode("utf-8")
+              )
+
+              secret_url = (
+                  f"https://api.github.com/repos/{REPO}"
+                  f"/actions/secrets/BAIDU_REFRESH_TOKEN"
+              )
+
+              payload = {
+                  "encrypted_value":
+                      base64.b64encode(encrypted).decode("utf-8"),
+                  "key_id": key_data["key_id"],
+              }
+
+              r = requests.put(
+                  secret_url,
+                  headers=headers,
+                  json=payload,
+                  timeout=30
+              )
+              r.raise_for_status()
+
+              print("Refresh token 已安全保存到 GitHub Secrets。")
+
+          # ============================================================
+          # 1. 获取 Access Token
+          # ============================================================
+
+          if REFRESH_TOKEN:
+              print("Using saved refresh token...")
+
+              params = {
+                  "grant_type": "refresh_token",
+                  "refresh_token": REFRESH_TOKEN,
+                  "client_id": APP_KEY,
+                  "client_secret": SECRET_KEY,
+              }
+
+              r = requests.get(
+                  TOKEN_URL,
+                  params=params,
+                  timeout=30
+              )
+
+              data = r.json()
+
+              if "error" in data:
                   raise RuntimeError(
-                      "No BAIDU_REFRESH_TOKEN and no BAIDU_AUTH_CODE available."
+                      "百度 Refresh Token 获取 Access Token 失败："
+                      + str(data)
                   )
 
-              print("Using authorization code...")
+              access_token = data.get("access_token")
 
-              url = "https://openapi.baidu.com/oauth/2.0/token"
+              new_refresh_token = data.get("refresh_token")
+
+              if new_refresh_token:
+                  save_refresh_token(new_refresh_token)
+
+              if not access_token:
+                  raise RuntimeError(
+                      "百度没有返回 Access Token。"
+                  )
+
+              print("Refresh token succeeded.")
+
+          else:
+              if not AUTH_CODE:
+                  raise RuntimeError(
+                      "没有 BAIDU_AUTH_CODE，也没有 BAIDU_REFRESH_TOKEN。"
+                  )
+
+              print("首次运行：使用授权码获取 Access Token...")
 
               params = {
                   "grant_type": "authorization_code",
                   "code": AUTH_CODE,
                   "client_id": APP_KEY,
                   "client_secret": SECRET_KEY,
-                  "redirect_uri": "oob"
+                  "redirect_uri": "oob",
               }
 
-              r = requests.get(url, params=params, timeout=30)
+              r = requests.get(
+                  TOKEN_URL,
+                  params=params,
+                  timeout=30
+              )
+
               data = r.json()
 
-              if not data.get("access_token"):
+              if "error" in data:
                   raise RuntimeError(
-                      "Authorization failed: " + json.dumps(data, ensure_ascii=False)
+                      "百度 OAuth 获取 Token 失败："
+                      + str(data)
                   )
 
-              print("Authorization code succeeded.")
-              return data
+              access_token = data.get("access_token")
+              new_refresh_token = data.get("refresh_token")
 
-          token_data = get_access_token()
+              if not access_token:
+                  raise RuntimeError(
+                      "百度没有返回 Access Token。"
+                  )
 
-          access_token = token_data["access_token"]
-          new_refresh_token = token_data.get("refresh_token")
+              if new_refresh_token:
+                  save_refresh_token(new_refresh_token)
 
-          # ---------------------------------------------------------
-          # 保存新的 refresh token 到 GitHub Secrets
-          # ---------------------------------------------------------
+              print("百度 OAuth 验证成功。")
 
-          if new_refresh_token and GH_PAT:
+          # ============================================================
+          # 2. 只读取 banana资源 文件夹
+          # ============================================================
 
-              print("Saving refresh token to GitHub Secrets...")
+          ROOT_FOLDER = "/banana资源"
 
-              headers = {
-                  "Authorization": f"Bearer {GH_PAT}",
-                  "Accept": "application/vnd.github+json",
-                  "X-GitHub-Api-Version": "2022-11-28"
-              }
+          print("")
+          print("========================================")
+          print("Reading:", ROOT_FOLDER)
+          print("========================================")
 
-              key_url = (
-                  f"https://api.github.com/repos/{GH_REPO}"
-                  f"/actions/secrets/public-key"
-              )
-
-              key_response = requests.get(
-                  key_url,
-                  headers=headers,
-                  timeout=30
-              )
-
-              key_response.raise_for_status()
-
-              key_data = key_response.json()
-
-              public_key = public.PublicKey(
-                  base64.b64decode(key_data["key"])
-              )
-
-              sealed_box = public.SealedBox(public_key)
-
-              encrypted = sealed_box.encrypt(
-                  new_refresh_token.encode("utf-8")
-              )
-
-              encrypted_value = base64.b64encode(
-                  encrypted
-              ).decode("utf-8")
-
-              secret_url = (
-                  f"https://api.github.com/repos/{GH_REPO}"
-                  f"/actions/secrets/BAIDU_REFRESH_TOKEN"
-              )
-
-              secret_response = requests.put(
-                  secret_url,
-                  headers=headers,
-                  json={
-                      "encrypted_value": encrypted_value,
-                      "key_id": key_data["key_id"]
-                  },
-                  timeout=30
-              )
-
-              secret_response.raise_for_status()
-
-              print("Refresh token saved.")
-
-          # ---------------------------------------------------------
-          # 获取百度网盘文件列表
+          # ------------------------------------------------------------
+          # 第一种方式：
+          # xpan/file?method=list
           #
-          # 注意：
-          # 这里使用 listall，并且最终再次检查完整 path。
-          # 即使百度接口返回了其他目录，也会被下面的严格过滤排除。
-          # ---------------------------------------------------------
+          # 这是普通目录列表，只读取指定目录的直接子项目。
+          # ------------------------------------------------------------
 
-          print("Reading:", BAIDU_FOLDER)
+          list_url = "https://pan.baidu.com/rest/2.0/xpan/file"
 
-          list_url = "https://pan.baidu.com/rest/2.0/xpan/multimedia"
+          params = {
+              "method": "list",
+              "access_token": access_token,
+              "dir": ROOT_FOLDER,
+              "start": 0,
+              "limit": 1000,
+              "order": "name",
+              "web": "web",
+          }
 
-          all_items = []
+          r = requests.get(
+              list_url,
+              params=params,
+              timeout=30
+          )
 
-          start = 0
-          limit = 1000
+          try:
+              data = r.json()
+          except Exception:
+              raise RuntimeError(
+                  "百度返回的不是有效 JSON："
+                  + r.text[:500]
+              )
 
-          while True:
+          print("Baidu list HTTP status:", r.status_code)
+          print("Baidu list errno:", data.get("errno", 0))
 
-              params = {
+          if data.get("errno", 0) != 0:
+              print(
+                  "普通目录读取失败，准备尝试第二种官方接口..."
+              )
+              print("errmsg:", data.get("errmsg", ""))
+
+              # --------------------------------------------------------
+              # 第二种方式：
+              # xpan/multimedia?method=listall
+              #
+              # recursion=0 表示不递归，只看当前目录。
+              # --------------------------------------------------------
+
+              listall_url = (
+                  "https://pan.baidu.com/rest/2.0/xpan/multimedia"
+              )
+
+              params2 = {
                   "method": "listall",
                   "access_token": access_token,
-                  "path": BAIDU_FOLDER,
-                  "recursion": 1,
-                  "start": start,
-                  "limit": limit,
-                  "web": 1
+                  "path": ROOT_FOLDER,
+                  "recursion": 0,
+                  "start": 0,
+                  "limit": 1000,
               }
 
-              response = requests.get(
-                  list_url,
-                  params=params,
-                  timeout=60
+              r2 = requests.get(
+                  listall_url,
+                  params=params2,
+                  timeout=30
               )
 
-              response.raise_for_status()
-
-              data = response.json()
-
-              if data.get("errno", 0) != 0:
+              try:
+                  data2 = r2.json()
+              except Exception:
                   raise RuntimeError(
-                      "Baidu listall failed: "
-                      + json.dumps(data, ensure_ascii=False)
+                      "百度 listall 返回的不是有效 JSON："
+                      + r2.text[:500]
                   )
 
-              items = data.get("list", [])
-
               print(
-                  f"Received {len(items)} items "
-                  f"(start={start})"
+                  "Baidu listall HTTP status:",
+                  r2.status_code
               )
 
-              if not items:
-                  break
+              print(
+                  "Baidu listall errno:",
+                  data2.get("errno", 0)
+              )
 
-              all_items.extend(items)
+              if data2.get("errno", 0) != 0:
+                  raise RuntimeError(
+                      "百度网盘目录读取失败。\n"
+                      "普通 list："
+                      + str(data)
+                      + "\n"
+                      "listall："
+                      + str(data2)
+                  )
 
-              if len(items) < limit:
-                  break
+              raw_items = data2.get("list", [])
 
-              start += len(items)
+          else:
+              raw_items = data.get("list", [])
 
-              if start > 100000:
-                  break
+          print("")
+          print("Total items received:", len(raw_items))
+          print("")
 
-          print("Total items received:", len(all_items))
-
-          # ---------------------------------------------------------
-          # 严格筛选：
+          # ============================================================
+          # 3. 严格过滤
           #
           # 只允许：
+          #
           # /banana资源/某个文件夹
           #
           # 不允许：
+          #
+          # /其他根目录
           # /banana资源
-          # /banana资源/某文件夹/文件.mp4
-          # /其他根目录/xxx
-          # ---------------------------------------------------------
-
-          prefix = BAIDU_FOLDER.rstrip("/") + "/"
+          # /banana资源/文件夹/里面的文件
+          # ============================================================
 
           folders = []
 
-          for item in all_items:
+          expected_prefix = ROOT_FOLDER + "/"
 
-              if int(item.get("isdir", 0)) != 1:
+          for item in raw_items:
+
+              is_dir = item.get("isdir", 0) == 1
+
+              if not is_dir:
                   continue
 
               path = item.get("path", "")
 
-              if not path.startswith(prefix):
+              # 必须属于 banana资源
+              if not path.startswith(expected_prefix):
                   continue
 
-              relative = path[len(prefix):].strip("/")
+              # 去掉 /banana资源/
+              relative = path[len(expected_prefix):]
 
-              # 必须只有一层
+              # 第一层目录必须不能再出现 /
               if not relative:
                   continue
 
@@ -286,8 +362,8 @@ jobs:
                   "fsId": item.get("fs_id"),
                   "mtime": item.get(
                       "server_mtime",
-                      item.get("local_mtime", 0)
-                  )
+                      0
+                  ),
               })
 
           # 去重
@@ -298,47 +374,50 @@ jobs:
 
           folders = list(unique.values())
 
+          # 排序
           folders.sort(
               key=lambda x: x["name"].lower()
           )
 
-          print("")
-          print("===== Folders detected =====")
+          print("========================================")
+          print("Folders detected:")
+          print("========================================")
 
           for folder in folders:
               print(
+                  "📁",
                   folder["name"],
                   "->",
                   folder["path"]
               )
 
-          print("============================")
+          print("")
           print("Folder count:", len(folders))
 
-          # ---------------------------------------------------------
-          # 重要：
-          # 不再写 resources.json
-          # 只写 baidu_folders.json
+          # ============================================================
+          # 4. 生成 baidu_folders.json
           #
-          # 因此不会破坏你原来的网站资源。
-          # ---------------------------------------------------------
+          # 注意：
+          # 不再碰 resources.json。
+          # ============================================================
 
           output = {
-              "updatedAt": time.strftime(
-                  "%Y-%m-%dT%H:%M:%SZ",
-                  time.gmtime()
-              ),
+              "updatedAt": datetime.now(
+                  timezone.utc
+              ).isoformat(),
+
               "source": "baidu",
-              "folder": BAIDU_FOLDER,
-              "resources": folders
+
+              "folder": ROOT_FOLDER,
+
+              "resources": folders,
           }
 
           with open(
-              OUTPUT_FILE,
+              "baidu_folders.json",
               "w",
               encoding="utf-8"
           ) as f:
-
               json.dump(
                   output,
                   f,
@@ -348,10 +427,14 @@ jobs:
 
           print("")
           print(
-              f"Written {OUTPUT_FILE}"
+              "Written baidu_folders.json"
           )
 
           PY
+
+      # ================================================================
+      # 5. 只提交 baidu_folders.json
+      # ================================================================
 
       - name: Commit and push
         run: |
