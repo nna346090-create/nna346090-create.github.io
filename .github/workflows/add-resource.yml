@@ -1,0 +1,137 @@
+name: 🍌 添加资源
+
+on:
+  repository_dispatch:
+    types: [add_resource]
+
+permissions:
+  contents: write
+
+jobs:
+  add-resource:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 添加资源
+        env:
+          RESOURCE_NAME: ${{ github.event.client_payload.name }}
+          BAIDU_URL: ${{ github.event.client_payload.baidu }}
+          BAIDU_PWD: ${{ github.event.client_payload.pwd }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from urllib.parse import urlparse, parse_qs
+
+          file = "resources.json"
+
+          name = os.environ.get("RESOURCE_NAME", "").strip()
+          baidu = os.environ.get("BAIDU_URL", "").strip()
+          pwd = os.environ.get("BAIDU_PWD", "").strip()
+
+          if not name:
+              raise SystemExit("错误：资源名称不能为空")
+
+          if len(name) > 200:
+              raise SystemExit("错误：资源名称不能超过 200 个字符")
+
+          if not baidu.startswith(("https://pan.baidu.com/", "https://yun.baidu.com/")):
+              raise SystemExit("错误：不是有效的百度网盘链接")
+
+          # 如果快捷指令没有单独传密码，就尝试从链接中读取
+          if not pwd:
+              try:
+                  query = parse_qs(urlparse(baidu).query)
+                  pwd = query.get("pwd", [""])[0]
+              except Exception:
+                  pwd = ""
+
+          now = datetime.now(timezone.utc).isoformat()
+
+          # 全新数据结构
+          data = {
+              "updatedAt": now,
+              "resources": []
+          }
+
+          # 读取已有资源
+          if os.path.exists(file):
+              try:
+                  with open(file, "r", encoding="utf-8") as f:
+                      old = json.load(f)
+
+                  if isinstance(old, dict):
+                      old_resources = old.get("resources", [])
+
+                      if isinstance(old_resources, list):
+                          for item in old_resources:
+                              if not isinstance(item, dict):
+                                  continue
+
+                              # 只保留新格式的百度资源
+                              old_url = str(item.get("baidu", "")).strip()
+
+                              if old_url.startswith(
+                                  ("https://pan.baidu.com/", "https://yun.baidu.com/")
+                              ):
+                                  data["resources"].append({
+                                      "name": str(item.get("name", "")).strip(),
+                                      "baidu": old_url,
+                                      "pwd": str(item.get("pwd", "")).strip(),
+                                      "type": "folder",
+                                      "updatedAt": item.get("updatedAt", now)
+                                  })
+
+              except Exception:
+                  # 旧文件无法识别时直接重新建立
+                  pass
+
+          # 防止同一个链接重复添加
+          replaced = False
+
+          for item in data["resources"]:
+              if item.get("baidu") == baidu:
+                  item["name"] = name
+                  item["pwd"] = pwd
+                  item["type"] = "folder"
+                  item["updatedAt"] = now
+                  replaced = True
+                  break
+
+          # 新资源
+          if not replaced:
+              data["resources"].append({
+                  "name": name,
+                  "baidu": baidu,
+                  "pwd": pwd,
+                  "type": "folder",
+                  "updatedAt": now
+              })
+
+          data["updatedAt"] = now
+
+          with open(file, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+
+          print("成功：", name)
+          print("百度链接：", baidu)
+          print("资源数量：", len(data["resources"]))
+          PY
+
+      - name: 提交更新
+        run: |
+          git config user.name "banana资源库"
+          git config user.email "actions@github.com"
+
+          git add resources.json
+
+          if git diff --cached --quiet; then
+            echo "没有需要提交的变化"
+          else
+            git commit -m "🍌 添加新资源"
+            git push
+          fi
