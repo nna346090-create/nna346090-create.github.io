@@ -132,17 +132,12 @@ banana资源库<br>
 
 let data=[];
 
-
-fetch("data.json")
+fetch("resources.json")
 .then(res=>res.json())
-.then(result=>{
-
-data=result;
-
-show(data);
-
+.then(res=>{
+    data=res;
+    show(data);
 });
-
 
 let current="全部";
 
