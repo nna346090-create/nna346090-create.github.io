@@ -1,16 +1,26 @@
+[
 {
-  "updatedAt": "2026-09-12T04:09:11.455902+00:00",
-  "source": "baidu",
-  "folder": "/banana资源",
-  "resources": [
-    {
-      "name": "B-本座的灵宠要上天【完】",
-      "path": "/banana资源/B-本座的灵宠要上天【完】",
-      "isDir": true,
-      "size": 0,
-      "fsId": 586232984560647,
-      "md5": "",
-      "mtime": 1788684224
-    }
-  ]
+"name":"早春晴朗",
+"type":"影视区",
+"baidu":"https://pan.baidu.com/s/15qUAK4rJPMK2HzWWS2wn9Q?pwd=N149"
+},
+
+{
+"name":"纸鸢",
+"type":"小说区",
+"baidu":"https://pan.baidu.com/s/1946thTCaXfjDdVBw3epfNw?pwd=P4yL"
+},
+
+{
+"name":"The Other Self二季全+番外",
+"type":"影视区",
+"baidu":"https://pan.baidu.com/s/1l-4xU77KqSaPkHNJzwr7Wg?pwd=Z2ao"
+},
+
+{
+"name":"高考零分作文精选大全",
+"type":"学习资料区",
+"baidu":"https://pan.baidu.com/s/1YRgnf1KU3-UKRuyimdHZmg?pwd=GM16",
+"quark":"https://pan.quark.cn/s/14c96aba32b2"
 }
+]
