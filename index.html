@@ -81,7 +81,9 @@ color:#267cff;
 text-decoration:none;
 display:block;
 margin-top:8px;
-}.footer{
+}
+
+.footer{
 text-align:center;
 color:#888;
 font-size:13px;
@@ -123,6 +125,7 @@ line-height:1.8;
 
 
 <div id="list"></div>
+
 <div class="footer">
 banana资源库<br>
 本站仅供交流学习，所有内容均为采集，数据来自于互联网
@@ -162,6 +165,10 @@ ${item.baidu?
 
 ${item.quark?
 `<a href="${item.quark}" target="_blank">夸克网盘</a>`
+:""}
+
+${item.xunlei?
+`<a href="${item.xunlei}" target="_blank">迅雷网盘</a>`
 :""}
 
 </div>
