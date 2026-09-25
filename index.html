@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 <title>banana资源库</title>
 
 <style>
@@ -39,29 +39,9 @@ background:#ff7b5c;
 color:white;
 }
 
-/* 分类区域 */
+/* 分类区域隐藏 */
 .categories{
-display:grid;
-grid-template-columns:repeat(6,1fr);
-gap:6px;
-margin:20px 0;
-}
-
-/* 分类按钮 */
-.cat{
-background:white;
-padding:8px 2px;
-border-radius:14px;
-cursor:pointer;
-font-size:12px;
-text-align:center;
-white-space:nowrap;
-overflow:hidden;
-}
-
-.active{
-background:#ff7b5c;
-color:white;
+display:none;
 }
 
 .card{
@@ -106,22 +86,6 @@ line-height:1.8;
 
 </div>
 
-<div class="categories">
-
-<div class="cat active" onclick="filter('全部',this)">全部</div>
-
-<div class="cat" onclick="filter('影视区',this)">📺影视区</div>
-
-<div class="cat" onclick="filter('小说区',this)">📚小说区</div>
-
-<div class="cat" onclick="filter('广播剧区',this)">🎧广播剧区</div>
-
-<div class="cat" onclick="filter('学习资料区',this)">📖学习资料区</div>
-
-<div class="cat" onclick="filter('漫画区',this)">🎨漫画区</div>
-
-</div>
-
 <div id="list"></div>
 
 <div class="footer">
@@ -137,10 +101,8 @@ fetch("date.json")
 .then(res=>res.json())
 .then(res=>{
     data=res;
-    show(data);
 });
 
-let current="全部";
 
 function show(arr){
 
@@ -178,41 +140,43 @@ document.getElementById("list").innerHTML=html;
 
 }
 
-function filter(type,el){
-
-current=type;
-
-document.querySelectorAll(".cat").forEach(x=>x.classList.remove("active"));
-
-el.classList.add("active");
-
-if(type=="全部"){
-show(data);
-}else{
-show(data.filter(x=>x.type==type));
-}
-
-}
 
 function search(){
 
-let key=document.getElementById("search").value;
+let key=document.getElementById("search").value.trim();
 
-show(data.filter(x=>
+if(!key){
 
-x.name.includes(key)&&
+document.getElementById("list").innerHTML="";
 
-(current=="全部"||x.type==current)
-
-));
+return;
 
 }
 
-show(data);
+let result=data.filter(x=>
+x.name.includes(key)
+);
+
+show(result);
+
+}
+
+
+/* 回车自动搜索 */
+
+document.getElementById("search").addEventListener("keydown",function(e){
+
+if(e.key==="Enter"){
+search();
+}
+
+});
 
 </script>
 
+
 <!-- 网站公告弹窗 -->
+
 <div id="noticeBox" style="
 position:fixed;
 top:0;
@@ -265,10 +229,15 @@ font-size:16px;
 </div>
 </div>
 
+
 <script>
+
 function closeNotice(){
+
 document.getElementById("noticeBox").style.display="none";
+
 }
+
 </script>
 
 </body>
