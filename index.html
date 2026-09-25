@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0,
+maximum-scale=1.0, minimum-scale=1.0,
+user-scalable=no">
+
 <title>banana资源库</title>
 
+
 <style>
+
+/* 页面 */
+
 body{
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 background:#f7f7f7;
@@ -13,9 +23,61 @@ margin:0;
 padding:20px;
 }
 
+
+/* 顶部滚动公告 */
+
+.notice-scroll{
+width:100%;
+overflow:hidden;
+background:#fff7e6;
+border-radius:12px;
+margin-bottom:15px;
+padding:10px 0;
+box-sizing:border-box;
+white-space:nowrap;
+}
+
+.notice-scroll span{
+display:inline-block;
+padding-left:100%;
+animation:scrollNotice 18s linear infinite;
+color:#666;
+font-size:14px;
+}
+
+@keyframes scrollNotice{
+
+0%{
+transform:translateX(0);
+}
+
+100%{
+transform:translateX(-100%);
+}
+
+}
+
+
+/* 标题 */
+
 h1{
 text-align:center;
+margin-bottom:18px;
 }
+
+
+/* 标题下面的备注 */
+
+.subtitle{
+text-align:center;
+color:#999;
+font-size:12px;
+margin-top:-12px;
+margin-bottom:15px;
+}
+
+
+/* 搜索区域 */
 
 .search{
 background:white;
@@ -23,14 +85,20 @@ padding:20px;
 border-radius:16px;
 }
 
+
+/* 搜索框 */
+
 input{
 width:70%;
 padding:12px;
 border-radius:10px;
 border:1px solid #ddd;
+box-sizing:border-box;
 }
 
+
 /* 搜索按钮 */
+
 button{
 padding:12px 18px;
 border:0;
@@ -39,10 +107,15 @@ background:#ff7b5c;
 color:white;
 }
 
+
 /* 分类区域隐藏 */
+
 .categories{
 display:none;
 }
+
+
+/* 资源卡片 */
 
 .card{
 background:white;
@@ -51,10 +124,16 @@ border-radius:15px;
 margin-bottom:15px;
 }
 
+
+/* 资源名称 */
+
 .name{
 font-size:18px;
 font-weight:bold;
 }
+
+
+/* 网盘链接 */
 
 a{
 color:#267cff;
@@ -63,6 +142,9 @@ display:block;
 margin-top:8px;
 }
 
+
+/* 底部 */
+
 .footer{
 text-align:center;
 color:#888;
@@ -70,43 +152,101 @@ font-size:13px;
 padding:25px 10px;
 line-height:1.8;
 }
+
 </style>
 
 </head>
 
+
 <body>
+
+
+<!-- 顶部滚动公告 -->
+
+<div class="notice-scroll">
+
+<span>
+网站提供海量免费资源，包括，最新影视剧、广播剧、漫画、小说、各类学习资料等等⚠️【温馨提示】:本站仅提供资源索引与搜索服务，链接来源于互联网公开信息，请勿相信资源链接内的任何广告信息哦
+</span>
+
+</div>
+
+
+<!-- 网站标题 -->
 
 <h1>🍌 banana资源库</h1>
 
+
+<!-- 标题下面的备注 -->
+
+<div class="subtitle">
+提供影视📺/小说📚/漫画/学习资料/破解软件等。。。
+</div>
+
+
+<!-- 搜索区域 -->
+
 <div class="search">
 
-<input id="search" placeholder="搜索资源名称">
+<input
+id="search"
+placeholder="搜索资源名称"
+>
 
-<button onclick="search()">搜索</button>
+<button onclick="search()">
+搜索
+</button>
 
 </div>
+
+
+<!-- 资源列表 -->
 
 <div id="list"></div>
 
+
+<!-- 网站底部 -->
+
 <div class="footer">
+
 banana资源库<br>
+
 本站仅供交流学习，所有内容均为采集，数据来自于互联网
+
 </div>
+
+
 
 <script>
 
+
+/* 资源数据 */
+
 let data=[];
+
+
+/* 获取资源 JSON */
 
 fetch("date.json")
 .then(res=>res.json())
 .then(res=>{
-    data=res;
+
+data=res;
+
+/* 页面打开后直接显示全部资源 */
+
+show(data);
+
 });
 
+
+
+/* 显示资源 */
 
 function show(arr){
 
 let html="";
+
 
 arr.forEach(item=>{
 
@@ -114,21 +254,35 @@ html+=`
 
 <div class="card">
 
-<div class="name">${item.name}</div>
+<div class="name">
+${item.name}
+</div>
 
-<div>分类：${item.type}</div>
+<div>
+分类：${item.type}
+</div>
+
 
 ${item.baidu?
-`<a href="${item.baidu}" target="_blank">百度网盘</a>`
+`<a href="${item.baidu}" target="_blank">
+百度网盘
+</a>`
 :""}
+
 
 ${item.quark?
-`<a href="${item.quark}" target="_blank">夸克网盘</a>`
+`<a href="${item.quark}" target="_blank">
+夸克网盘
+</a>`
 :""}
 
+
 ${item.xunlei?
-`<a href="${item.xunlei}" target="_blank">迅雷网盘</a>`
+`<a href="${item.xunlei}" target="_blank">
+迅雷网盘
+</a>`
 :""}
+
 
 </div>
 
@@ -136,48 +290,75 @@ ${item.xunlei?
 
 });
 
+
 document.getElementById("list").innerHTML=html;
 
 }
 
 
+
+/* 搜索 */
+
 function search(){
 
-let key=document.getElementById("search").value.trim();
+let key=document
+.getElementById("search")
+.value
+.trim();
+
+
+/* 搜索框为空 */
 
 if(!key){
 
-document.getElementById("list").innerHTML="";
+/* 清空搜索后恢复全部资源 */
+
+show(data);
 
 return;
 
 }
 
+
+/* 搜索资源 */
+
 let result=data.filter(x=>
 x.name.includes(key)
 );
+
+
+/* 显示搜索结果 */
 
 show(result);
 
 }
 
 
+
 /* 回车自动搜索 */
 
-document.getElementById("search").addEventListener("keydown",function(e){
+document
+.getElementById("search")
+.addEventListener("keydown",function(e){
 
 if(e.key==="Enter"){
+
 search();
+
 }
 
 });
 
+
 </script>
+
 
 
 <!-- 网站公告弹窗 -->
 
-<div id="noticeBox" style="
+<div
+id="noticeBox"
+style="
 position:fixed;
 top:0;
 left:0;
@@ -190,7 +371,9 @@ justify-content:center;
 z-index:9999;
 ">
 
-<div style="
+
+<div
+style="
 background:white;
 width:80%;
 max-width:360px;
@@ -200,22 +383,35 @@ text-align:center;
 box-shadow:0 10px 30px rgba(0,0,0,.2);
 ">
 
+
 <h2 style="color:#ff6f61;">
+
 🍌 banana资源库
+
 </h2>
 
-<p style="
+
+<p
+style="
 font-size:16px;
 line-height:1.8;
 color:#555;
 ">
+
 ✅本站仅供交流学习，所有内容均来自于互联网<br>
+
 💢如有侵权，请联系我们<br>
+
 🔍可使用搜索功能查找资源<br>
+
 🔍搜索时尽量输入2-3个字的关键词
+
 </p>
 
-<button onclick="closeNotice()" style="
+
+<button
+onclick="closeNotice()"
+style="
 background:#ff7568;
 color:white;
 border:none;
@@ -223,22 +419,35 @@ padding:12px 35px;
 border-radius:30px;
 font-size:16px;
 ">
+
 知道了
+
 </button>
 
+
 </div>
+
 </div>
+
 
 
 <script>
 
+
+/* 关闭公告 */
+
 function closeNotice(){
 
-document.getElementById("noticeBox").style.display="none";
+document
+.getElementById("noticeBox")
+.style.display="none";
 
 }
 
+
 </script>
 
+
 </body>
+
 </html>
