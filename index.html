@@ -108,10 +108,44 @@ color:white;
 }
 
 
-/* 分类区域隐藏 */
+/* 分类区域 */
 
 .categories{
+display:flex;
+gap:5px;
+margin-top:15px;
+overflow-x:auto;
+white-space:nowrap;
+-webkit-overflow-scrolling:touch;
+scrollbar-width:none;
+}
+
+
+/* 隐藏滚动条 */
+
+.categories::-webkit-scrollbar{
 display:none;
+}
+
+
+/* 分类按钮 */
+
+.cat{
+background:white;
+padding:8px 10px;
+border-radius:8px;
+text-align:center;
+font-size:10px;
+white-space:nowrap;
+flex-shrink:0;
+}
+
+
+/* 当前分类 */
+
+.cat.active{
+background:#ff7b5c;
+color:white;
 }
 
 
@@ -197,6 +231,43 @@ placeholder="搜索资源名称"
 搜索
 </button>
 
+
+<!-- 分类 -->
+
+<div class="categories">
+
+<div class="cat active"
+onclick="filterCategory('全部',this)">
+全部
+</div>
+
+<div class="cat"
+onclick="filterCategory('影视区',this)">
+📺影视区
+</div>
+
+<div class="cat"
+onclick="filterCategory('小说区',this)">
+📚小说区
+</div>
+
+<div class="cat"
+onclick="filterCategory('广播剧区',this)">
+🎧广播剧区
+</div>
+
+<div class="cat"
+onclick="filterCategory('学习资料区',this)">
+📖学习资料区
+</div>
+
+<div class="cat"
+onclick="filterCategory('漫画区',this)">
+🎨漫画区
+</div>
+
+</div>
+
 </div>
 
 
@@ -223,6 +294,11 @@ banana资源库<br>
 /* 资源数据 */
 
 let data=[];
+
+
+/* 当前分类 */
+
+let currentCategory="全部";
 
 
 /* 获取资源 JSON */
@@ -297,6 +373,69 @@ document.getElementById("list").innerHTML=html;
 
 
 
+/* 分类筛选 */
+
+function filterCategory(category,element){
+
+currentCategory=category;
+
+
+/* 修改当前分类 */
+
+document
+.querySelectorAll(".cat")
+.forEach(item=>{
+
+item.classList.remove("active");
+
+});
+
+element.classList.add("active");
+
+
+/* 获取搜索关键词 */
+
+let key=document
+.getElementById("search")
+.value
+.trim();
+
+
+/* 初始使用全部资源 */
+
+let result=data;
+
+
+/* 按分类筛选 */
+
+if(category!=="全部"){
+
+result=result.filter(item=>
+item.type===category
+);
+
+}
+
+
+/* 同时按照关键词筛选 */
+
+if(key){
+
+result=result.filter(item=>
+item.name.includes(key)
+);
+
+}
+
+
+/* 显示结果 */
+
+show(result);
+
+}
+
+
+
 /* 搜索 */
 
 function search(){
@@ -307,27 +446,41 @@ let key=document
 .trim();
 
 
+/* 初始使用全部资源 */
+
+let result=data;
+
+
+/* 按当前分类筛选 */
+
+if(currentCategory!=="全部"){
+
+result=result.filter(item=>
+item.type===currentCategory
+);
+
+}
+
+
 /* 搜索框为空 */
 
 if(!key){
 
-/* 清空搜索后恢复全部资源 */
-
-show(data);
+show(result);
 
 return;
 
 }
 
 
-/* 搜索资源 */
+/* 按关键词筛选 */
 
-let result=data.filter(x=>
-x.name.includes(key)
+result=result.filter(item=>
+item.name.includes(key)
 );
 
 
-/* 显示搜索结果 */
+/* 显示结果 */
 
 show(result);
 
@@ -386,7 +539,7 @@ box-shadow:0 10px 30px rgba(0,0,0,.2);
 
 <h2 style="color:#ff6f61;">
 
-🍌 banana资源库
+温馨提示
 
 </h2>
 
@@ -394,13 +547,12 @@ box-shadow:0 10px 30px rgba(0,0,0,.2);
 <p
 style="
 font-size:16px;
-line-height:1.8;
+line-height:1.7;
 color:#555;
+text-align:left;
 ">
 
-✅本站仅供交流学习，所有内容均来自于互联网<br>
-
-💢如有侵权，请联系我们<br>
+✅本站仅供交流学习，所有内容均来自于互联网，如有侵权，请及时联系我们进行处理<br>
 
 🔍可使用搜索功能查找资源<br>
 
@@ -420,7 +572,7 @@ border-radius:30px;
 font-size:16px;
 ">
 
-知道了
+确认
 
 </button>
 
