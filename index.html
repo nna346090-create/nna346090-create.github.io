@@ -11,7 +11,6 @@ user-scalable=no">
 
 <title>banana资源库</title>
 
-
 <style>
 
 /* 页面 */
@@ -46,15 +45,12 @@ font-size:14px;
 }
 
 @keyframes scrollNotice{
-
 0%{
 transform:translateX(0);
 }
-
 100%{
 transform:translateX(-100%);
 }
-
 }
 
 
@@ -120,9 +116,6 @@ white-space:nowrap;
 scrollbar-width:none;
 }
 
-
-/* 隐藏滚动条 */
-
 .categories::-webkit-scrollbar{
 display:none;
 }
@@ -139,9 +132,6 @@ font-size:10px;
 white-space:nowrap;
 flex-shrink:0;
 }
-
-
-/* 当前分类 */
 
 .cat.active{
 background:#ff7b5c;
@@ -186,9 +176,6 @@ gap:10px;
 margin-top:8px;
 }
 
-
-/* 网盘链接行里的链接 */
-
 .link-row a{
 margin-top:0;
 }
@@ -206,9 +193,6 @@ font-size:12px;
 white-space:nowrap;
 }
 
-
-/* 复制成功 */
-
 .copy-btn.copied{
 background:#67c23a;
 color:white;
@@ -225,10 +209,28 @@ padding:25px 10px;
 line-height:1.8;
 }
 
+
+/* 后台保护白屏 */
+
+#privacyScreen{
+position:fixed;
+inset:0;
+width:100%;
+height:100%;
+background:#fff;
+z-index:999999;
+display:none;
+}
+
+/* 白屏时禁止页面滚动 */
+
+body.privacy-active{
+overflow:hidden;
+}
+
 </style>
 
 </head>
-
 
 <body>
 
@@ -236,11 +238,9 @@ line-height:1.8;
 <!-- 顶部滚动公告 -->
 
 <div class="notice-scroll">
-
 <span>
 网站提供海量免费资源，包括，最新影视剧、广播剧、漫画、小说、各类学习资料等等⚠️【温馨提示】:本站仅提供资源索引与搜索服务，链接来源于互联网公开信息，请勿相信资源链接内的任何广告信息哦
 </span>
-
 </div>
 
 
@@ -317,17 +317,12 @@ onclick="filterCategory('漫画区',this)">
 <!-- 网站底部 -->
 
 <div class="footer">
-
 banana资源库<br>
-
 本站仅供交流学习，所有内容均为采集，数据来自于互联网
-
 </div>
 
 
-
 <script>
-
 
 /* 资源数据 */
 
@@ -342,17 +337,29 @@ let currentCategory="全部";
 /* 获取资源 JSON */
 
 fetch("date.json")
-.then(res=>res.json())
+.then(res=>{
+
+if(!res.ok){
+throw new Error("资源数据加载失败");
+}
+
+return res.json();
+
+})
 .then(res=>{
 
 data=res;
-
-/* 页面打开后直接显示全部资源 */
-
 show(data);
 
-});
+})
+.catch(error=>{
 
+document.getElementById("list").innerHTML=
+'<div class="card">资源加载失败，请刷新页面重试。</div>';
+
+console.error(error);
+
+});
 
 
 /* 显示资源 */
@@ -360,6 +367,46 @@ show(data);
 function show(arr){
 
 let html="";
+
+if(arr.length===0){
+
+html=`
+<div style="
+background:white;
+padding:25px 15px;
+border-radius:15px;
+margin-bottom:15px;
+text-align:center;
+color:#666;
+font-size:15px;
+line-height:1.8;
+">
+
+未找到你想要的内容？<br>
+
+可尝试更换/减少关键词，或
+
+<a
+href="https://docs.qq.com/form/page/DTURyV1RPeVZ2VFhR"
+target="_blank"
+rel="noopener noreferrer"
+style="
+display:inline;
+color:#267cff;
+font-weight:bold;
+">
+投稿资源
+</a>
+
+，本站会于休息日处理
+
+</div>
+`;
+
+document.getElementById("list").innerHTML=html;
+return;
+
+}
 
 
 arr.forEach(item=>{
@@ -381,13 +428,16 @@ ${item.baidu?
 `
 <div class="link-row">
 
-<a href="${item.baidu}" target="_blank">
+<a href="${item.baidu}"
+target="_blank"
+rel="noopener noreferrer">
 百度网盘
 </a>
 
 <button
 class="copy-btn"
-onclick="copyLink('${item.baidu}',this)">
+data-link="${escapeAttribute(item.baidu)}"
+onclick="copyLink(this.dataset.link,this)">
 复制链接
 </button>
 
@@ -400,13 +450,16 @@ ${item.quark?
 `
 <div class="link-row">
 
-<a href="${item.quark}" target="_blank">
+<a href="${item.quark}"
+target="_blank"
+rel="noopener noreferrer">
 夸克网盘
 </a>
 
 <button
 class="copy-btn"
-onclick="copyLink('${item.quark}',this)">
+data-link="${escapeAttribute(item.quark)}"
+onclick="copyLink(this.dataset.link,this)">
 复制链接
 </button>
 
@@ -419,13 +472,16 @@ ${item.xunlei?
 `
 <div class="link-row">
 
-<a href="${item.xunlei}" target="_blank">
+<a href="${item.xunlei}"
+target="_blank"
+rel="noopener noreferrer">
 迅雷网盘
 </a>
 
 <button
 class="copy-btn"
-onclick="copyLink('${item.xunlei}',this)">
+data-link="${escapeAttribute(item.xunlei)}"
+onclick="copyLink(this.dataset.link,this)">
 复制链接
 </button>
 
@@ -433,110 +489,108 @@ onclick="copyLink('${item.xunlei}',this)">
 `
 :""}
 
-
 </div>
 
 `;
 
 });
 
-
 document.getElementById("list").innerHTML=html;
 
 }
 
 
+/* 转义 HTML 属性中的特殊字符 */
+
+function escapeAttribute(value){
+
+return String(value)
+.replace(/&/g,"&amp;")
+.replace(/"/g,"&quot;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;");
+
+}
+
 
 /* 复制链接 */
 
-function copyLink(link,button){
+async function copyLink(link,button){
 
-if(navigator.clipboard){
+try{
 
-navigator.clipboard.writeText(link)
-.then(()=>{
+if(navigator.clipboard && window.isSecureContext){
 
-button.innerText="已复制 ✓";
-
-button.classList.add("copied");
-
-
-setTimeout(()=>{
-
-button.innerText="复制链接";
-
-button.classList.remove("copied");
-
-},1500);
-
-})
-.catch(()=>{
-
-fallbackCopy(link,button);
-
-});
+await navigator.clipboard.writeText(link);
 
 }else{
 
-fallbackCopy(link,button);
+fallbackCopy(link);
+
+}
+
+showCopied(button);
+
+}catch(error){
+
+try{
+
+fallbackCopy(link);
+showCopied(button);
+
+}catch(copyError){
+
+alert("复制失败，请手动打开网盘链接复制。");
 
 }
 
 }
 
+}
 
 
-/* 兼容部分手机浏览器的复制方法 */
+/* 兼容复制方式 */
 
-function fallbackCopy(link,button){
+function fallbackCopy(link){
 
 let textarea=document.createElement("textarea");
 
 textarea.value=link;
-
 textarea.style.position="fixed";
-
-textarea.style.opacity="0";
+textarea.style.left="-9999px";
+textarea.style.top="0";
 
 document.body.appendChild(textarea);
 
 textarea.focus();
-
 textarea.select();
 
-try{
+let success=document.execCommand("copy");
 
-document.execCommand("copy");
+textarea.remove();
+
+if(!success){
+throw new Error("复制失败");
+}
+
+}
+
+
+/* 显示复制成功 */
+
+function showCopied(button){
 
 button.innerText="已复制 ✓";
-
 button.classList.add("copied");
-
 
 setTimeout(()=>{
 
 button.innerText="复制链接";
-
 button.classList.remove("copied");
 
 },1500);
 
-}catch(e){
-
-button.innerText="复制失败";
-
-setTimeout(()=>{
-
-button.innerText="复制链接";
-
-},1500);
-
 }
-
-document.body.removeChild(textarea);
-
-}
-
 
 
 /* 分类筛选 */
@@ -545,34 +599,20 @@ function filterCategory(category,element){
 
 currentCategory=category;
 
-
-/* 修改当前分类 */
-
 document
 .querySelectorAll(".cat")
 .forEach(item=>{
-
 item.classList.remove("active");
-
 });
 
 element.classList.add("active");
-
-
-/* 获取搜索关键词 */
 
 let key=document
 .getElementById("search")
 .value
 .trim();
 
-
-/* 初始使用全部资源 */
-
 let result=data;
-
-
-/* 按分类筛选 */
 
 if(category!=="全部"){
 
@@ -582,9 +622,6 @@ item.type===category
 
 }
 
-
-/* 同时按照关键词筛选 */
-
 if(key){
 
 result=result.filter(item=>
@@ -593,13 +630,9 @@ item.name.includes(key)
 
 }
 
-
-/* 显示结果 */
-
 show(result);
 
 }
-
 
 
 /* 搜索 */
@@ -611,13 +644,7 @@ let key=document
 .value
 .trim();
 
-
-/* 初始使用全部资源 */
-
 let result=data;
-
-
-/* 按当前分类筛选 */
 
 if(currentCategory!=="全部"){
 
@@ -627,85 +654,35 @@ item.type===currentCategory
 
 }
 
-
-/* 搜索框为空 */
-
 if(!key){
 
 show(result);
-
 return;
 
 }
-
-
-/* 按关键词筛选 */
 
 result=result.filter(item=>
 item.name.includes(key)
 );
 
-
-/* 如果没有搜索结果 */
-
-if(result.length===0){
-
-showSearchNoResult();
-
-return;
-
-}
-
-
-/* 显示结果 */
-
 show(result);
 
 }
 
 
-
-/* 搜索无结果弹窗 */
-
-function showSearchNoResult(){
-
-document
-.getElementById("searchNoResult")
-.style.display="flex";
-
-}
-
-
-
-/* 关闭搜索无结果弹窗 */
-
-function closeSearchNoResult(){
-
-document
-.getElementById("searchNoResult")
-.style.display="none";
-
-}
-
-
-
-/* 回车自动搜索 */
+/* 回车搜索 */
 
 document
 .getElementById("search")
 .addEventListener("keydown",function(e){
 
 if(e.key==="Enter"){
-
 search();
-
 }
 
 });
 
-
 </script>
-
 
 
 <!-- 网站公告弹窗 -->
@@ -725,7 +702,6 @@ justify-content:center;
 z-index:9999;
 ">
 
-
 <div
 style="
 background:white;
@@ -737,13 +713,9 @@ text-align:center;
 box-shadow:0 10px 30px rgba(0,0,0,.2);
 ">
 
-
 <h2 style="color:#ff6f61;">
-
 温馨提示
-
 </h2>
-
 
 <p
 style="
@@ -760,22 +732,23 @@ text-align:left;
 🔍搜索时尽量输入2-3个字的关键词<br><br>
 
 未找到你想要的资源？戳
+
 <a
 href="https://docs.qq.com/form/page/DTURyV1RPeVZ2VFhR"
 target="_blank"
+rel="noopener noreferrer"
 style="
 display:inline;
 color:#267cff;
 text-decoration:none;
 font-weight:bold;
-"
->
-资源投稿
+">
+“投稿资源”
 </a>
-进行定制，本站会于休息日进行处理💡
+
+进行定制，本站会于工作日进行处理
 
 </p>
-
 
 <button
 onclick="closeNotice()"
@@ -787,19 +760,15 @@ padding:12px 35px;
 border-radius:30px;
 font-size:16px;
 ">
-
 确认
-
 </button>
 
-
 </div>
 
 </div>
 
 
-
-<!-- 搜索无结果弹窗 -->
+<!-- 搜索无结果时显示的提示弹窗 -->
 
 <div
 id="searchNoResult"
@@ -816,7 +785,6 @@ justify-content:center;
 z-index:10000;
 ">
 
-
 <div
 style="
 background:white;
@@ -828,13 +796,9 @@ text-align:center;
 box-shadow:0 10px 30px rgba(0,0,0,.2);
 ">
 
-
 <h2 style="color:#ff6f61;">
-
-很抱歉，未找到该资源😭
-
+未找到资源
 </h2>
-
 
 <p
 style="
@@ -851,20 +815,19 @@ text-align:left;
 <a
 href="https://docs.qq.com/form/page/DTURyV1RPeVZ2VFhR"
 target="_blank"
+rel="noopener noreferrer"
 style="
 display:inline;
 color:#267cff;
 text-decoration:none;
 font-weight:bold;
-"
->
-投稿资源💌
+">
+投稿资源
 </a>
 
-，本站会于休息日进行处理，请稍后再试
+，本站会于休息日处理
 
 </p>
-
 
 <button
 onclick="closeSearchNoResult()"
@@ -876,35 +839,108 @@ padding:12px 35px;
 border-radius:30px;
 font-size:16px;
 ">
-
 确认
-
 </button>
 
-
 </div>
 
 </div>
 
+
+<!-- 后台白屏保护层 -->
+
+<div id="privacyScreen" aria-hidden="true"></div>
 
 
 <script>
 
-
-/* 关闭公告 */
+/* 关闭初始公告 */
 
 function closeNotice(){
 
-document
-.getElementById("noticeBox")
-.style.display="none";
+document.getElementById("noticeBox").style.display="none";
 
 }
 
+
+/* 关闭搜索无结果提示 */
+
+function closeSearchNoResult(){
+
+document.getElementById("searchNoResult").style.display="none";
+
+}
+
+
+/* 后台白屏保护 */
+
+const privacyScreen=document.getElementById("privacyScreen");
+
+
+function enablePrivacyScreen(){
+
+privacyScreen.style.display="block";
+document.body.classList.add("privacy-active");
+
+}
+
+
+function disablePrivacyScreen(){
+
+privacyScreen.style.display="none";
+document.body.classList.remove("privacy-active");
+
+}
+
+
+/*
+页面进入后台时显示白屏。
+例如：切换到其他 App、锁屏或切换浏览器标签页。
+*/
+
+document.addEventListener("visibilitychange",function(){
+
+if(document.visibilityState==="hidden"){
+
+enablePrivacyScreen();
+
+}else{
+
+disablePrivacyScreen();
+
+}
+
+});
+
+
+/*
+离开当前页面时也尝试显示白屏。
+浏览器不一定会触发此事件。
+*/
+
+window.addEventListener("pagehide",function(){
+
+enablePrivacyScreen();
+
+});
+
+
+/*
+从浏览器历史缓存恢复页面时恢复正常显示。
+*/
+
+window.addEventListener("pageshow",function(){
+
+if(document.visibilityState==="visible"){
+
+disablePrivacyScreen();
+
+}
+
+});
 
 </script>
 
 
 </body>
-
 </html>
