@@ -172,8 +172,46 @@ font-weight:bold;
 a{
 color:#267cff;
 text-decoration:none;
-display:block;
+display:inline-block;
 margin-top:8px;
+}
+
+
+/* 网盘链接行 */
+
+.link-row{
+display:flex;
+align-items:center;
+gap:10px;
+margin-top:8px;
+}
+
+
+/* 网盘链接行里的链接 */
+
+.link-row a{
+margin-top:0;
+}
+
+
+/* 复制按钮 */
+
+.copy-btn{
+padding:6px 10px;
+border:0;
+border-radius:8px;
+background:#eee;
+color:#555;
+font-size:12px;
+white-space:nowrap;
+}
+
+
+/* 复制成功 */
+
+.copy-btn.copied{
+background:#67c23a;
+color:white;
 }
 
 
@@ -340,23 +378,59 @@ ${item.name}
 
 
 ${item.baidu?
-`<a href="${item.baidu}" target="_blank">
+`
+<div class="link-row">
+
+<a href="${item.baidu}" target="_blank">
 百度网盘
-</a>`
+</a>
+
+<button
+class="copy-btn"
+onclick="copyLink('${item.baidu}',this)">
+复制链接
+</button>
+
+</div>
+`
 :""}
 
 
 ${item.quark?
-`<a href="${item.quark}" target="_blank">
+`
+<div class="link-row">
+
+<a href="${item.quark}" target="_blank">
 夸克网盘
-</a>`
+</a>
+
+<button
+class="copy-btn"
+onclick="copyLink('${item.quark}',this)">
+复制链接
+</button>
+
+</div>
+`
 :""}
 
 
 ${item.xunlei?
-`<a href="${item.xunlei}" target="_blank">
+`
+<div class="link-row">
+
+<a href="${item.xunlei}" target="_blank">
 迅雷网盘
-</a>`
+</a>
+
+<button
+class="copy-btn"
+onclick="copyLink('${item.xunlei}',this)">
+复制链接
+</button>
+
+</div>
+`
 :""}
 
 
@@ -368,6 +442,98 @@ ${item.xunlei?
 
 
 document.getElementById("list").innerHTML=html;
+
+}
+
+
+
+/* 复制链接 */
+
+function copyLink(link,button){
+
+if(navigator.clipboard){
+
+navigator.clipboard.writeText(link)
+.then(()=>{
+
+button.innerText="已复制 ✓";
+
+button.classList.add("copied");
+
+
+setTimeout(()=>{
+
+button.innerText="复制链接";
+
+button.classList.remove("copied");
+
+},1500);
+
+})
+.catch(()=>{
+
+fallbackCopy(link,button);
+
+});
+
+}else{
+
+fallbackCopy(link,button);
+
+}
+
+}
+
+
+
+/* 兼容部分手机浏览器的复制方法 */
+
+function fallbackCopy(link,button){
+
+let textarea=document.createElement("textarea");
+
+textarea.value=link;
+
+textarea.style.position="fixed";
+
+textarea.style.opacity="0";
+
+document.body.appendChild(textarea);
+
+textarea.focus();
+
+textarea.select();
+
+try{
+
+document.execCommand("copy");
+
+button.innerText="已复制 ✓";
+
+button.classList.add("copied");
+
+
+setTimeout(()=>{
+
+button.innerText="复制链接";
+
+button.classList.remove("copied");
+
+},1500);
+
+}catch(e){
+
+button.innerText="复制失败";
+
+setTimeout(()=>{
+
+button.innerText="复制链接";
+
+},1500);
+
+}
+
+document.body.removeChild(textarea);
 
 }
 
