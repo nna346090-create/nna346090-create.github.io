@@ -646,9 +646,44 @@ item.name.includes(key)
 );
 
 
+/* 如果没有搜索结果 */
+
+if(result.length===0){
+
+showSearchNoResult();
+
+return;
+
+}
+
+
 /* 显示结果 */
 
 show(result);
+
+}
+
+
+
+/* 搜索无结果弹窗 */
+
+function showSearchNoResult(){
+
+document
+.getElementById("searchNoResult")
+.style.display="flex";
+
+}
+
+
+
+/* 关闭搜索无结果弹窗 */
+
+function closeSearchNoResult(){
+
+document
+.getElementById("searchNoResult")
+.style.display="none";
 
 }
 
@@ -722,13 +757,117 @@ text-align:left;
 
 🔍可使用搜索功能查找资源<br>
 
-🔍搜索时尽量输入2-3个字的关键词
+🔍搜索时尽量输入2-3个字的关键词<br><br>
+
+未找到你想要的资源？戳
+<a
+href="https://docs.qq.com/form/page/DTURyV1RPeVZ2VFhR"
+target="_blank"
+style="
+display:inline;
+color:#267cff;
+text-decoration:none;
+font-weight:bold;
+"
+>
+“投稿资源”
+</a>
+进行定制，本站会于工作日进行处理
 
 </p>
 
 
 <button
 onclick="closeNotice()"
+style="
+background:#ff7568;
+color:white;
+border:none;
+padding:12px 35px;
+border-radius:30px;
+font-size:16px;
+">
+
+确认
+
+</button>
+
+
+</div>
+
+</div>
+
+
+
+<!-- 搜索无结果弹窗 -->
+
+<div
+id="searchNoResult"
+style="
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.45);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:10000;
+">
+
+
+<div
+style="
+background:white;
+width:80%;
+max-width:360px;
+border-radius:20px;
+padding:25px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+">
+
+
+<h2 style="color:#ff6f61;">
+
+未找到资源
+
+</h2>
+
+
+<p
+style="
+font-size:16px;
+line-height:1.8;
+color:#555;
+text-align:left;
+">
+
+未找到你想要的内容？<br>
+
+可尝试更换/减少关键词，或
+
+<a
+href="https://docs.qq.com/form/page/DTURyV1RPeVZ2VFhR"
+target="_blank"
+style="
+display:inline;
+color:#267cff;
+text-decoration:none;
+font-weight:bold;
+"
+>
+投稿资源
+</a>
+
+，本站会于休息日处理
+
+</p>
+
+
+<button
+onclick="closeSearchNoResult()"
 style="
 background:#ff7568;
 color:white;
