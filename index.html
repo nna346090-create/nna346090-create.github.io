@@ -45,12 +45,15 @@ font-size:14px;
 }
 
 @keyframes scrollNotice{
+
 0%{
 transform:translateX(0);
 }
+
 100%{
 transform:translateX(-100%);
 }
+
 }
 
 
@@ -139,6 +142,15 @@ color:white;
 }
 
 
+/* 网盘分类标题 */
+
+.drive-title{
+margin-top:12px;
+font-size:12px;
+color:#888;
+}
+
+
 /* 资源卡片 */
 
 .card{
@@ -222,6 +234,7 @@ z-index:999999;
 display:none;
 }
 
+
 /* 白屏时禁止页面滚动 */
 
 body.privacy-active{
@@ -238,9 +251,11 @@ overflow:hidden;
 <!-- 顶部滚动公告 -->
 
 <div class="notice-scroll">
+
 <span>
 网站提供海量免费资源，包括，最新影视剧、广播剧、漫画、小说、各类学习资料等等⚠️【温馨提示】:本站仅提供资源索引与搜索服务，链接来源于互联网公开信息，请勿相信资源链接内的任何广告信息哦
 </span>
+
 </div>
 
 
@@ -270,7 +285,7 @@ placeholder="搜索资源名称"
 </button>
 
 
-<!-- 分类 -->
+<!-- 资源分类 -->
 
 <div class="categories">
 
@@ -306,6 +321,37 @@ onclick="filterCategory('漫画区',this)">
 
 </div>
 
+
+<!-- 网盘分类 -->
+
+<div class="drive-title">
+网盘：
+</div>
+
+<div class="categories drive-categories">
+
+<div class="cat drive-cat active"
+onclick="filterDrive('不限网盘',this)">
+不限网盘
+</div>
+
+<div class="cat drive-cat"
+onclick="filterDrive('夸克网盘',this)">
+夸克网盘
+</div>
+
+<div class="cat drive-cat"
+onclick="filterDrive('百度网盘',this)">
+百度网盘
+</div>
+
+<div class="cat drive-cat"
+onclick="filterDrive('迅雷网盘',this)">
+迅雷网盘
+</div>
+
+</div>
+
 </div>
 
 
@@ -317,41 +363,76 @@ onclick="filterCategory('漫画区',this)">
 <!-- 网站底部 -->
 
 <div class="footer">
+
 banana资源库<br>
+
 本站仅供交流学习，所有内容均为采集，数据来自于互联网
+
 </div>
 
 
 <script>
 
+
+/* ================================================= */
 /* 资源数据 */
+/* ================================================= */
 
 let data=[];
 
 
-/* 当前分类 */
+/* 当前资源分类 */
 
 let currentCategory="全部";
 
 
+/* 当前网盘分类 */
+
+let currentDrive="不限网盘";
+
+
+/* date.json 第一条资源 */
+
+let topResource=null;
+
+
+
+/* ================================================= */
 /* 获取资源 JSON */
+/* ================================================= */
 
 fetch("date.json")
+
 .then(res=>{
 
 if(!res.ok){
+
 throw new Error("资源数据加载失败");
+
 }
 
 return res.json();
 
 })
+
 .then(res=>{
 
 data=res;
+
+
+/*
+date.json 第一条资源固定作为 TOP
+*/
+
+topResource=data[0] || null;
+
+
+/* 显示全部资源 */
+
 show(data);
 
 })
+
 .catch(error=>{
 
 document.getElementById("list").innerHTML=
@@ -362,15 +443,22 @@ console.error(error);
 });
 
 
+
+/* ================================================= */
 /* 显示资源 */
+/* ================================================= */
 
 function show(arr){
 
 let html="";
 
+
+/* 没有结果 */
+
 if(arr.length===0){
 
 html=`
+
 <div style="
 background:white;
 padding:25px 15px;
@@ -395,27 +483,35 @@ display:inline;
 color:#267cff;
 font-weight:bold;
 ">
+
 投稿资源
+
 </a>
 
 ，本站会于休息日处理
 
 </div>
+
 `;
 
 document.getElementById("list").innerHTML=html;
+
 return;
 
 }
 
 
-arr.forEach((item,index)=>{
+/* 遍历资源 */
+
+arr.forEach(item=>{
 
 html+=`
 
 <div class="card">
 
-${index===0 ? `
+
+${item===topResource ? `
+
 <div style="
 display:inline-block;
 background:#ff4d4f;
@@ -426,83 +522,125 @@ padding:3px 7px;
 border-radius:5px;
 margin-bottom:6px;
 ">
+
 TOP
+
 </div>
+
 ` : ""}
 
+
 <div class="name">
+
 ${item.name}
+
 </div>
 
+
 <div>
+
 分类：${item.type}
+
 </div>
 
 
 ${item.baidu?
+
 `
+
 <div class="link-row">
 
-<a href="${item.baidu}"
+<a
+href="${item.baidu}"
 target="_blank"
 rel="noopener noreferrer">
+
 百度网盘
+
 </a>
+
 
 <button
 class="copy-btn"
 data-link="${escapeAttribute(item.baidu)}"
 onclick="copyLink(this.dataset.link,this)">
+
 复制链接
+
 </button>
 
 </div>
+
 `
+
 :""}
 
 
+
 ${item.quark?
+
 `
+
 <div class="link-row">
 
-<a href="${item.quark}"
+<a
+href="${item.quark}"
 target="_blank"
 rel="noopener noreferrer">
+
 夸克网盘
+
 </a>
+
 
 <button
 class="copy-btn"
 data-link="${escapeAttribute(item.quark)}"
 onclick="copyLink(this.dataset.link,this)">
+
 复制链接
+
 </button>
 
 </div>
+
 `
+
 :""}
 
 
+
 ${item.xunlei?
+
 `
+
 <div class="link-row">
 
-<a href="${item.xunlei}"
+<a
+href="${item.xunlei}"
 target="_blank"
 rel="noopener noreferrer">
+
 迅雷网盘
+
 </a>
+
 
 <button
 class="copy-btn"
 data-link="${escapeAttribute(item.xunlei)}"
 onclick="copyLink(this.dataset.link,this)">
+
 复制链接
+
 </button>
 
 </div>
+
 `
+
 :""}
+
 
 </div>
 
@@ -510,16 +648,21 @@ onclick="copyLink(this.dataset.link,this)">
 
 });
 
+
 document.getElementById("list").innerHTML=html;
 
 }
 
 
+
+/* ================================================= */
 /* 转义 HTML 属性中的特殊字符 */
+/* ================================================= */
 
 function escapeAttribute(value){
 
 return String(value)
+
 .replace(/&/g,"&amp;")
 .replace(/"/g,"&quot;")
 .replace(/</g,"&lt;")
@@ -528,7 +671,10 @@ return String(value)
 }
 
 
+
+/* ================================================= */
 /* 复制链接 */
+/* ================================================= */
 
 async function copyLink(link,button){
 
@@ -551,6 +697,7 @@ showCopied(button);
 try{
 
 fallbackCopy(link);
+
 showCopied(button);
 
 }catch(copyError){
@@ -564,13 +711,17 @@ alert("复制失败，请手动打开网盘链接复制。");
 }
 
 
+
+/* ================================================= */
 /* 兼容复制方式 */
+/* ================================================= */
 
 function fallbackCopy(link){
 
 let textarea=document.createElement("textarea");
 
 textarea.value=link;
+
 textarea.style.position="fixed";
 textarea.style.left="-9999px";
 textarea.style.top="0";
@@ -585,22 +736,30 @@ let success=document.execCommand("copy");
 textarea.remove();
 
 if(!success){
+
 throw new Error("复制失败");
-}
 
 }
 
+}
 
+
+
+/* ================================================= */
 /* 显示复制成功 */
+/* ================================================= */
 
 function showCopied(button){
 
 button.innerText="已复制 ✓";
+
 button.classList.add("copied");
+
 
 setTimeout(()=>{
 
 button.innerText="复制链接";
+
 button.classList.remove("copied");
 
 },1500);
@@ -608,58 +767,96 @@ button.classList.remove("copied");
 }
 
 
-/* 分类筛选 */
+
+/* ================================================= */
+/* 网盘筛选 */
+/* ================================================= */
+
+function filterByDrive(arr){
+
+if(currentDrive==="不限网盘"){
+
+return arr;
+
+}
+
+
+/* 夸克网盘 */
+
+if(currentDrive==="夸克网盘"){
+
+return arr.filter(item=>
+item.quark
+);
+
+}
+
+
+/* 百度网盘 */
+
+if(currentDrive==="百度网盘"){
+
+return arr.filter(item=>
+item.baidu
+);
+
+}
+
+
+/* 迅雷网盘 */
+
+if(currentDrive==="迅雷网盘"){
+
+return arr.filter(item=>
+item.xunlei
+);
+
+}
+
+
+return arr;
+
+}
+
+
+
+/* ================================================= */
+/* 资源分类筛选 */
+/* ================================================= */
 
 function filterCategory(category,element){
 
 currentCategory=category;
 
+
+/* 只处理资源分类按钮 */
+
 document
-.querySelectorAll(".cat")
+.querySelectorAll(".cat:not(.drive-cat)")
 .forEach(item=>{
+
 item.classList.remove("active");
+
 });
+
 
 element.classList.add("active");
 
-let key=document
-.getElementById("search")
-.value
-.trim();
 
-let result=data;
-
-if(category!=="全部"){
-
-result=result.filter(item=>
-item.type===category
-);
-
-}
-
-if(key){
-
-result=result.filter(item=>
-item.name.includes(key)
-);
-
-}
-
-show(result);
-
-}
-
-
-/* 搜索 */
-
-function search(){
+/* 获取搜索关键词 */
 
 let key=document
 .getElementById("search")
 .value
 .trim();
 
+
+/* 初始使用全部资源 */
+
 let result=data;
+
+
+/* 按资源分类 */
 
 if(currentCategory!=="全部"){
 
@@ -669,30 +866,173 @@ item.type===currentCategory
 
 }
 
-if(!key){
 
-show(result);
-return;
+/* 按网盘 */
 
-}
+result=filterByDrive(result);
+
+
+/* 按关键词 */
+
+if(key){
 
 result=result.filter(item=>
 item.name.includes(key)
 );
 
+}
+
+
+/* 显示结果 */
+
 show(result);
 
 }
 
 
+
+/* ================================================= */
+/* 网盘分类筛选 */
+/* ================================================= */
+
+function filterDrive(drive,element){
+
+currentDrive=drive;
+
+
+/* 只处理网盘按钮 */
+
+document
+.querySelectorAll(".drive-cat")
+.forEach(item=>{
+
+item.classList.remove("active");
+
+});
+
+
+element.classList.add("active");
+
+
+/* 获取搜索关键词 */
+
+let key=document
+.getElementById("search")
+.value
+.trim();
+
+
+/* 初始使用全部资源 */
+
+let result=data;
+
+
+/* 按资源分类 */
+
+if(currentCategory!=="全部"){
+
+result=result.filter(item=>
+item.type===currentCategory
+);
+
+}
+
+
+/* 按网盘 */
+
+result=filterByDrive(result);
+
+
+/* 按关键词 */
+
+if(key){
+
+result=result.filter(item=>
+item.name.includes(key)
+);
+
+}
+
+
+/* 显示结果 */
+
+show(result);
+
+}
+
+
+
+/* ================================================= */
+/* 搜索 */
+/* ================================================= */
+
+function search(){
+
+let key=document
+.getElementById("search")
+.value
+.trim();
+
+
+/* 初始使用全部资源 */
+
+let result=data;
+
+
+/* 按资源分类 */
+
+if(currentCategory!=="全部"){
+
+result=result.filter(item=>
+item.type===currentCategory
+);
+
+}
+
+
+/* 按网盘 */
+
+result=filterByDrive(result);
+
+
+/* 搜索框为空 */
+
+if(!key){
+
+show(result);
+
+return;
+
+}
+
+
+/* 按关键词 */
+
+result=result.filter(item=>
+item.name.includes(key)
+);
+
+
+/* 显示结果 */
+
+show(result);
+
+}
+
+
+
+/* ================================================= */
 /* 回车搜索 */
+/* ================================================= */
 
 document
 .getElementById("search")
 .addEventListener("keydown",function(e){
 
 if(e.key==="Enter"){
+
 search();
+
 }
 
 });
@@ -700,7 +1040,10 @@ search();
 </script>
 
 
+
+<!-- ================================================= -->
 <!-- 网站公告弹窗 -->
+<!-- ================================================= -->
 
 <div
 id="noticeBox"
@@ -717,6 +1060,7 @@ justify-content:center;
 z-index:9999;
 ">
 
+
 <div
 style="
 background:white;
@@ -728,9 +1072,13 @@ text-align:center;
 box-shadow:0 10px 30px rgba(0,0,0,.2);
 ">
 
+
 <h2 style="color:#ff6f61;">
+
 温馨提示
+
 </h2>
+
 
 <p
 style="
@@ -740,13 +1088,18 @@ color:#555;
 text-align:left;
 ">
 
+
 ✅本站仅供交流学习，所有内容均来自于互联网，如有侵权，请及时联系我们进行处理<br>
+
 
 🔍可使用搜索功能查找资源<br>
 
+
 🔍搜索时尽量输入2-3个字的关键词<br><br>
 
+
 未找到你想要的资源？戳
+
 
 <a
 href="https://docs.qq.com/form/page/DTURyV1RPeVZ2VFhR"
@@ -758,12 +1111,16 @@ color:#267cff;
 text-decoration:none;
 font-weight:bold;
 ">
+
 “投稿资源”
+
 </a>
 
 进行定制，本站会于工作日进行处理
 
+
 </p>
+
 
 <button
 onclick="closeNotice()"
@@ -775,15 +1132,21 @@ padding:12px 35px;
 border-radius:30px;
 font-size:16px;
 ">
+
 确认
+
 </button>
 
-</div>
 
 </div>
 
+</div>
 
+
+
+<!-- ================================================= -->
 <!-- 搜索无结果时显示的提示弹窗 -->
+<!-- ================================================= -->
 
 <div
 id="searchNoResult"
@@ -800,6 +1163,7 @@ justify-content:center;
 z-index:10000;
 ">
 
+
 <div
 style="
 background:white;
@@ -811,9 +1175,13 @@ text-align:center;
 box-shadow:0 10px 30px rgba(0,0,0,.2);
 ">
 
+
 <h2 style="color:#ff6f61;">
+
 未找到资源
+
 </h2>
+
 
 <p
 style="
@@ -823,9 +1191,12 @@ color:#555;
 text-align:left;
 ">
 
+
 未找到你想要的内容？<br>
 
+
 可尝试更换/减少关键词，或点击➡️
+
 
 <a
 href="https://docs.qq.com/form/page/DTURyV1RPeVZ2VFhR"
@@ -837,12 +1208,17 @@ color:#267cff;
 text-decoration:none;
 font-weight:bold;
 ">
+
 投稿资源
+
 </a>
+
 
 ，本站会于休息日处理
 
+
 </p>
+
 
 <button
 onclick="closeSearchNoResult()"
@@ -854,66 +1230,102 @@ padding:12px 35px;
 border-radius:30px;
 font-size:16px;
 ">
+
 确认
+
 </button>
 
-</div>
 
 </div>
 
+</div>
 
+
+
+<!-- ================================================= -->
 <!-- 后台白屏保护层 -->
+<!-- ================================================= -->
 
-<div id="privacyScreen" aria-hidden="true"></div>
+<div
+id="privacyScreen"
+aria-hidden="true">
+</div>
+
 
 
 <script>
 
+
+/* ================================================= */
 /* 关闭初始公告 */
+/* ================================================= */
 
 function closeNotice(){
 
-document.getElementById("noticeBox").style.display="none";
+document
+.getElementById("noticeBox")
+.style.display="none";
 
 }
 
 
+
+/* ================================================= */
 /* 关闭搜索无结果提示 */
+/* ================================================= */
 
 function closeSearchNoResult(){
 
-document.getElementById("searchNoResult").style.display="none";
+document
+.getElementById("searchNoResult")
+.style.display="none";
 
 }
 
 
-/* 后台白屏保护 */
 
-const privacyScreen=document.getElementById("privacyScreen");
+/* ================================================= */
+/* 后台白屏保护 */
+/* ================================================= */
+
+const privacyScreen=
+document.getElementById("privacyScreen");
+
 
 
 function enablePrivacyScreen(){
 
 privacyScreen.style.display="block";
+
 document.body.classList.add("privacy-active");
 
 }
 
 
+
 function disablePrivacyScreen(){
 
 privacyScreen.style.display="none";
+
 document.body.classList.remove("privacy-active");
 
 }
 
 
+
 /*
 页面进入后台时显示白屏。
-例如：切换到其他 App、锁屏或切换浏览器标签页。
+
+例如：
+
+切换到其他 App
+锁屏
+切换浏览器标签页
 */
 
-document.addEventListener("visibilitychange",function(){
+document.addEventListener(
+"visibilitychange",
+function(){
 
 if(document.visibilityState==="hidden"){
 
@@ -928,23 +1340,28 @@ disablePrivacyScreen();
 });
 
 
+
 /*
-离开当前页面时也尝试显示白屏。
-浏览器不一定会触发此事件。
+离开当前页面时尝试显示白屏。
 */
 
-window.addEventListener("pagehide",function(){
+window.addEventListener(
+"pagehide",
+function(){
 
 enablePrivacyScreen();
 
 });
 
 
+
 /*
 从浏览器历史缓存恢复页面时恢复正常显示。
 */
 
-window.addEventListener("pageshow",function(){
+window.addEventListener(
+"pageshow",
+function(){
 
 if(document.visibilityState==="visible"){
 
@@ -954,8 +1371,10 @@ disablePrivacyScreen();
 
 });
 
+
 </script>
 
 
 </body>
+
 </html>
