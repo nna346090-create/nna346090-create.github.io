@@ -242,6 +242,103 @@ body.privacy-active{
 overflow:hidden;
 }
 
+
+/* ================================================= */
+/* 分享按钮 */
+/* ================================================= */
+
+.share-button{
+position:fixed;
+top:12px;
+right:12px;
+padding:8px 12px;
+border:0;
+border-radius:10px;
+background:#ff7b5c;
+color:white;
+font-size:12px;
+z-index:9998;
+}
+
+
+/* ================================================= */
+/* 分享弹窗 */
+/* ================================================= */
+
+#shareBox{
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.45);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:10001;
+}
+
+
+.share-content{
+background:white;
+width:82%;
+max-width:380px;
+border-radius:20px;
+padding:20px;
+box-sizing:border-box;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+
+.share-title{
+text-align:center;
+font-size:18px;
+font-weight:bold;
+color:#ff6f61;
+margin-bottom:15px;
+}
+
+
+.share-text{
+background:#f7f7f7;
+border-radius:12px;
+padding:15px;
+font-size:14px;
+line-height:1.8;
+color:#555;
+white-space:pre-wrap;
+word-break:break-word;
+text-align:left;
+max-height:55vh;
+overflow-y:auto;
+}
+
+
+.share-copy{
+display:block;
+width:100%;
+margin-top:15px;
+padding:12px;
+border:0;
+border-radius:10px;
+background:#ff7b5c;
+color:white;
+font-size:15px;
+}
+
+
+.share-close{
+display:block;
+width:100%;
+margin-top:8px;
+padding:10px;
+border:0;
+border-radius:10px;
+background:#eee;
+color:#555;
+font-size:14px;
+}
+
 </style>
 
 </head>
@@ -249,12 +346,25 @@ overflow:hidden;
 <body>
 
 
+<!-- ================================================= -->
+<!-- 分享按钮 -->
+<!-- ================================================= -->
+
+<button
+class="share-button"
+onclick="openShare()">
+
+分享
+
+</button>
+
+
 <!-- 顶部滚动公告 -->
 
 <div class="notice-scroll">
 
 <span>
-网站提供海量免费资源，包括，最新影视剧、广播剧、漫画、小说、各类学习资料等等⚠️【温馨提示】:本站仅提供资源索引与搜索服务，链接来源于互联网公开信息，请勿相信资源链接内的任何广告信息哦
+📢网站提供海量免费资源，包括，最新影视剧、广播剧、漫画、小说、各类学习资料等等⚠️【温馨提示】:本站仅提供资源索引与搜索服务，链接来源于互联网公开信息，请勿相信资源链接内的任何广告信息
 </span>
 
 </div>
@@ -1246,6 +1356,70 @@ font-size:16px;
 
 
 <!-- ================================================= -->
+<!-- 分享弹窗 -->
+<!-- ================================================= -->
+
+<div
+id="shareBox"
+>
+
+
+<div
+class="share-content"
+>
+
+
+<div
+class="share-title"
+>
+
+分享给好友
+
+</div>
+
+
+<div
+class="share-text"
+id="shareText"
+>宝子们！谁懂啊！🎉
+找免费资源终于不用到处扒啦！
+我发现个超实用的神器 —— banana资源库！✨
+📚 小说类：小说合集、耽美言情等
+🎬 影视类：最新AI漫剧、美剧电影等
+在这儿都能轻松找到！😎
+关键是 —— 完全免费！🆓
+想试试的话，直接点这个链接就能用：http://nna346090-create.github.io
+赶紧冲，再也不用愁找不到资源啦！🚀</div>
+
+
+<button
+class="share-copy"
+id="shareCopyButton"
+onclick="copyShareText()"
+>
+
+复制
+
+</button>
+
+
+<button
+class="share-close"
+onclick="closeShare()"
+>
+
+关闭
+
+</button>
+
+
+</div>
+
+</div>
+
+
+
+<!-- ================================================= -->
 <!-- 后台白屏保护层 -->
 <!-- ================================================= -->
 
@@ -1282,6 +1456,118 @@ function closeSearchNoResult(){
 document
 .getElementById("searchNoResult")
 .style.display="none";
+
+}
+
+
+
+/* ================================================= */
+/* 分享功能 */
+/* ================================================= */
+
+function openShare(){
+
+document
+.getElementById("shareBox")
+.style.display="flex";
+
+}
+
+
+function closeShare(){
+
+document
+.getElementById("shareBox")
+.style.display="none";
+
+}
+
+
+function copyShareText(){
+
+let text=document
+.getElementById("shareText")
+.innerText;
+
+let button=document
+.getElementById("shareCopyButton");
+
+
+if(navigator.clipboard && window.isSecureContext){
+
+navigator.clipboard
+.writeText(text)
+.then(()=>{
+
+button.innerText="已复制 ✓";
+
+button.style.background="#67c23a";
+
+
+setTimeout(()=>{
+
+button.innerText="复制宣传语";
+
+button.style.background="#ff7b5c";
+
+},1500);
+
+})
+.catch(()=>{
+
+fallbackCopyShare(text,button);
+
+});
+
+}else{
+
+fallbackCopyShare(text,button);
+
+}
+
+}
+
+
+function fallbackCopyShare(text,button){
+
+let textarea=document.createElement("textarea");
+
+textarea.value=text;
+
+textarea.style.position="fixed";
+textarea.style.left="-9999px";
+textarea.style.top="0";
+
+document.body.appendChild(textarea);
+
+textarea.focus();
+textarea.select();
+
+let success=document.execCommand("copy");
+
+textarea.remove();
+
+
+if(success){
+
+button.innerText="已复制 ✓";
+
+button.style.background="#67c23a";
+
+
+setTimeout(()=>{
+
+button.innerText="复制宣传语";
+
+button.style.background="#ff7b5c";
+
+},1500);
+
+}else{
+
+alert("复制失败，请手动复制宣传语。");
+
+}
 
 }
 
