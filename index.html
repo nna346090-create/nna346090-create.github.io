@@ -512,7 +512,101 @@ let topResource=null;
 /* 获取资源 JSON */
 /* ================================================= */
 
+/* ================================================= */
+/* 获取资源 JSON */
+/* ================================================= */
+
+
+Promise.all([
+
+fetch("dateb.json")
+.then(res=>{
+
+if(!res.ok){
+
+throw new Error("dateb.json加载失败");
+
+}
+
+return res.json();
+
+}),
+
+
 fetch("date.json")
+.then(res=>{
+
+if(!res.ok){
+
+throw new Error("date.json加载失败");
+
+}
+
+return res.json();
+
+})
+
+])
+
+
+.then(result=>{
+
+
+/*
+资源排序：
+
+dateb.json = 最新更新
+date.json = 原资源
+
+最新资源放前面
+*/
+
+data=[
+
+...result[0],
+
+...result[1]
+
+];
+
+
+
+/*
+第一条资源作为 TOP
+
+因为dateb.json排在最前
+
+所以TOP永远显示最新更新资源
+
+*/
+
+topResource=data[0] || null;
+
+
+
+/*
+显示资源
+
+*/
+
+show(data);
+
+
+})
+
+
+.catch(error=>{
+
+
+document.getElementById("list").innerHTML=
+
+'<div class="card">资源加载失败，请刷新页面或更换浏览器重试。</div>';
+
+
+console.error(error);
+
+
+});
 
 .then(res=>{
 
