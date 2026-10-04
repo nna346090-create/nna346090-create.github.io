@@ -513,6 +513,20 @@ let topResource=null;
 /* ================================================= */
 
 
+/*
+dateb.json = 最新更新资源
+date.json = 原资源库
+
+显示顺序：
+
+dateb.json
+↓
+date.json
+
+所以 dateb 永远显示在最上方
+*/
+
+
 Promise.all([
 
 fetch("dateb.json")
@@ -542,25 +556,31 @@ return res.json();
 
 })
 
+
 ])
 
 
 .then(result=>{
 
 
+let updateData=result[0];
+
+let oldData=result[1];
+
+
+
 /*
-dateb.json = 最新更新
-date.json = 原资源
+合并资源
 
-dateb资源显示在最前
+最新更新在前
+
 */
-
 
 data=[
 
-...result[0],
+...updateData,
 
-...result[1]
+...oldData
 
 ];
 
@@ -569,99 +589,36 @@ data=[
 /*
 第一条资源作为TOP
 
+也就是dateb第一条
+
 */
 
 topResource=data[0] || null;
 
-
-
-show(data);
-
-
-})
-
-
-.catch(error=>{
-
-
-document.getElementById("list").innerHTML=
-
-'<div class="card">资源加载失败，请刷新页面或更换浏览器重试。</div>';
-
-
-console.error(error);
-
-
-});(error=>{
-
-
-document.getElementById("list").innerHTML=
-
-'<div class="card">资源加载失败，请刷新页面或更换浏览器重试。</div>';
-
-
-console.error(error);
-
-
-});
-
-*/
-
-show(data);
-
-
-})
-
-
-.catch(error=>{
-
-
-document.getElementById("list").innerHTML=
-
-'<div class="card">资源加载失败，请刷新页面或更换浏览器重试。</div>';
-
-
-console.error(error);
-
-
-});
-
-.then(res=>{
-
-if(!res.ok){
-
-throw new Error("资源数据加载失败");
-
-}
-
-return res.json();
-
-})
-
-.then(res=>{
-
-data=res;
 
 
 /*
-date.json 第一条资源固定作为 TOP
+显示资源
+
 */
-
-topResource=data[0] || null;
-
-
-/* 显示全部资源 */
 
 show(data);
 
+
+
 })
+
 
 .catch(error=>{
 
+
 document.getElementById("list").innerHTML=
-'<div class="card">资源加载失败，请刷新页面或更换浏览器重试。</div>';
+
+'<div class="card">资源加载失败，请检查 dateb.json 和 date.json 文件。</div>';
+
 
 console.error(error);
+
 
 });
 
