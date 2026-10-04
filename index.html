@@ -552,7 +552,7 @@ return res.json();
 dateb.json = 最新更新
 date.json = 原资源
 
-最新资源显示在最前
+dateb资源显示在最前
 */
 
 
@@ -567,9 +567,7 @@ data=[
 
 
 /*
-第一条作为TOP
-
-所以最新更新自动TOP
+第一条资源作为TOP
 
 */
 
@@ -584,6 +582,17 @@ show(data);
 
 
 .catch(error=>{
+
+
+document.getElementById("list").innerHTML=
+
+'<div class="card">资源加载失败，请刷新页面或更换浏览器重试。</div>';
+
+
+console.error(error);
+
+
+});(error=>{
 
 
 document.getElementById("list").innerHTML=
