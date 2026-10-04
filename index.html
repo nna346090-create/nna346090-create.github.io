@@ -512,10 +512,6 @@ let topResource=null;
 /* 获取资源 JSON */
 /* ================================================= */
 
-/* ================================================= */
-/* 获取资源 JSON */
-/* ================================================= */
-
 
 Promise.all([
 
@@ -553,13 +549,12 @@ return res.json();
 
 
 /*
-资源排序：
-
 dateb.json = 最新更新
 date.json = 原资源
 
-最新资源放前面
+最新资源显示在最前
 */
+
 
 data=[
 
@@ -572,11 +567,9 @@ data=[
 
 
 /*
-第一条资源作为 TOP
+第一条作为TOP
 
-因为dateb.json排在最前
-
-所以TOP永远显示最新更新资源
+所以最新更新自动TOP
 
 */
 
@@ -584,8 +577,24 @@ topResource=data[0] || null;
 
 
 
-/*
-显示资源
+show(data);
+
+
+})
+
+
+.catch(error=>{
+
+
+document.getElementById("list").innerHTML=
+
+'<div class="card">资源加载失败，请刷新页面或更换浏览器重试。</div>';
+
+
+console.error(error);
+
+
+});
 
 */
 
